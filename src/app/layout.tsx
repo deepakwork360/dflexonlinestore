@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import MainHeader from "@/components/ui/layout/MainHeader";
+import { Volkhov } from "next/font/google";
+import TopAnnouncementBar from "@/components/ui/layout/TopAnnouncementBar";
+
+const volkhov = Volkhov({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-sans",
+});
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +36,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TopAnnouncementBar />
+        <MainHeader />
+        {children}</body>
     </html>
   );
 }
