@@ -46,12 +46,35 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
+  // Fetch up to 4 recommended products in the same category or brand, excluding the current product
+  const recommended = await prisma.product.findMany({
+    where: {
+      id: {
+        not: product.id,
+      },
+      OR: [
+        { categoryId: product.categoryId },
+        { brandId: product.brandId },
+      ],
+    },
+    include: {
+      brand: true,
+      images: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+      },
+    },
+    take: 4,
+  });
+
   // Serialize Prisma Decimals and Dates to plain serializable JSON primitives
   const serializedProduct = JSON.parse(JSON.stringify(product));
+  const serializedRecommended = JSON.parse(JSON.stringify(recommended));
 
   return (
-    <main className="min-h-screen bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 pb-20">
-      <ProductDetailView product={serializedProduct} />
+    <main className="min-h-screen bg-white text-neutral-950 pb-20">
+      <ProductDetailView product={serializedProduct} recommended={serializedRecommended} />
     </main>
   );
 }

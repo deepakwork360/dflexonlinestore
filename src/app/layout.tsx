@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import MainHeader from "@/components/ui/layout/MainHeader";
 import { Volkhov } from "next/font/google";
 import TopAnnouncementBar from "@/components/ui/layout/TopAnnouncementBar";
+import { CartProvider } from "@/context/CartContext";
+import { Toaster } from "sonner";
 
 const volkhov = Volkhov({
   subsets: ["latin"],
@@ -39,9 +41,13 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
     >
       <body className="min-h-full flex flex-col">
-        <TopAnnouncementBar />
-        <MainHeader />
-        {children}</body>
+        <CartProvider>
+          <TopAnnouncementBar />
+          <MainHeader />
+          {children}
+          <Toaster position="bottom-right" richColors closeButton />
+        </CartProvider>
+      </body>
     </html>
   );
 }

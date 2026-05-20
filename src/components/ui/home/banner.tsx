@@ -117,7 +117,7 @@ export default function Banner({ gender }: BannerProps) {
 
           <div className="pt-2">
             <Link
-              href="/collections/shoes"
+              href={genderKey ? `/collections/shoes?gender=${genderKey}` : "/collections/shoes"}
               className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all duration-300 hover:bg-neutral-100 hover:scale-105 active:scale-95"
             >
               Explore Collection

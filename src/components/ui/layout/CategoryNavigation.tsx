@@ -3,7 +3,7 @@
 import { Search, Loader2, ImageOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 
 export default function CategoryNavigation() {
@@ -13,7 +13,14 @@ export default function CategoryNavigation() {
   const [isOpen, setIsOpen] = useState(false);
   
   const router = useRouter();
+  const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Derive gender from current pathname by splitting segments
+  // e.g. /women → "women", /men → "men", /kids → "kids", anything else → null
+  const GENDER_SEGMENTS = ["men", "women", "kids"];
+  const firstSegment = pathname.split("/").filter(Boolean)[0]?.toLowerCase() ?? "";
+  const currentGender = GENDER_SEGMENTS.includes(firstSegment) ? firstSegment : null;
 
   const navItems = [
     { name: "New", href: "/collections/new", isHighlight: false },
@@ -22,7 +29,7 @@ export default function CategoryNavigation() {
     { name: "Accessories", href: "/collections/accessories", isHighlight: false },
     { name: "Brands", href: "/collections/brands", isHighlight: false },
     { name: "Premium", href: "/collections/premium", isHighlight: false },
-    { name: "Sale%", href: "/collections/sale", isHighlight: true },
+    { name: "Sale%", href: currentGender ? `/collections/sale?gender=${currentGender}&onSale=true` : "/collections/sale?onSale=true", isHighlight: true },
   ];
 
   // Live debounced search effect

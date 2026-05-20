@@ -62,7 +62,7 @@ const FLAGSHIP_CONFIG: Record<
 
 export default async function GenderCollectionPage({ params }: Props) {
   const resolvedParams = await params;
-  const genderKey = resolvedParams.gender.toLowerCase();
+  const genderKey = resolvedParams.gender?.toLowerCase();
 
   // Guard against non-gender routes to prevent hijacking static routes
   const allowed = ["men", "women", "kids"];
@@ -219,7 +219,7 @@ export default async function GenderCollectionPage({ params }: Props) {
           {/* Left Column: Stacked 2 Cards */}
           <div className="w-full lg:w-[42%] flex flex-col gap-6 lg:h-full">
             {/* 1. Retro Athletics Card */}
-            <div className="flex-1 relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
+            <div className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
               <Image
                 src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=600&auto=format&fit=crop"
                 alt="Retro Athletics Collection"
@@ -241,7 +241,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 </p>
                 <div className="pt-2">
                   <Link
-                    href="/collections/shoes"
+                    href={`/collections/shoes?gender=${genderKey}`}
                     className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 hover:text-rose-400 transition-colors"
                   >
                     Explore &rarr;
@@ -251,7 +251,7 @@ export default async function GenderCollectionPage({ params }: Props) {
             </div>
 
             {/* 2. Minimalist Comfort Card */}
-            <div className="flex-1 relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
+            <div className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
               <Image
                 src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600"
                 alt="Minimalist Comfort Collection"
@@ -273,7 +273,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 </p>
                 <div className="pt-2">
                   <Link
-                    href="/collections/shoes"
+                    href={`/collections/shoes?gender=${genderKey}`}
                     className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 hover:text-rose-400 transition-colors"
                   >
                     Explore &rarr;
@@ -284,7 +284,7 @@ export default async function GenderCollectionPage({ params }: Props) {
           </div>
 
           {/* Right Column: One Large Editorial Card */}
-          <div className="w-full lg:w-[58%] relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full">
+          <div className="w-full lg:w-[58%] relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full">
             <Image
               src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200"
               alt="Performance Tech Collection"
@@ -309,7 +309,7 @@ export default async function GenderCollectionPage({ params }: Props) {
               </p>
               <div className="pt-2">
                 <Link
-                  href="/collections/shoes"
+                  href={`/collections/shoes?gender=${genderKey}`}
                   className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-neutral-100 hover:scale-105 active:scale-95"
                 >
                   Explore Collection &rarr;
@@ -335,29 +335,34 @@ export default async function GenderCollectionPage({ params }: Props) {
           {[
             {
               name: "Nike",
+              slug: "nike",
               img: "https://images.unsplash.com/photo-1644338912375-f46319e7bf5e?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             },
             {
               name: "Adidas",
+              slug: "adidas",
               img: "https://images.unsplash.com/photo-1555274175-75f4056dfd05?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             },
             {
               name: "Puma",
+              slug: "puma",
               img: "https://images.unsplash.com/photo-1629753897877-522619845842?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             },
             {
               name: "Vans",
+              slug: "vans",
               img: "https://images.unsplash.com/photo-1777764348524-6404c69cdea5?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             },
             {
               name: "Jordan",
+              slug: "jordan",
               img: "https://images.unsplash.com/photo-1706571717924-934a8a7c2aa7?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             },
           ].map((brand, i) => (
             <Link
               key={i}
-              href="/collections/shoes"
-              className="group relative overflow-hidden rounded-2xl aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
+              href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
+              className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
             >
               {/* Background Image */}
               <Image
@@ -432,7 +437,7 @@ export default async function GenderCollectionPage({ params }: Props) {
             {[
               {
                 title: "Complimentary Express Delivery",
-                desc: "Free secure priority worldwide shipping on all orders over $150.",
+                desc: "Free secure priority worldwide shipping on all orders over $100.",
                 highlight: "Free Shipping"
               },
               {
