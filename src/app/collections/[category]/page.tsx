@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Tag, ShoppingBag, ArrowRight } from "lucide-react";
 import FilterSidebar from "@/components/ui/products/FilterSidebar";
+import MobileFilterDrawer from "@/components/ui/products/MobileFilterDrawer";
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -192,12 +193,20 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 ml-5">
             {products.length} {products.length === 1 ? "Sneaker" : "Sneakers"} Found
           </p>
+          {/* Mobile Filter sidetab drawer */}
+          <div className="lg:hidden">
+            <MobileFilterDrawer
+              brands={dbBrands}
+              categories={dbCategories}
+              sizes={dbSizes}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           
-          {/* Left Column: Interactive Filter Sidebar (Sticky, Left Corner, ml-5) */}
-          <div className="w-full lg:w-[250px] shrink-0 ml-5 lg:sticky lg:top-24 lg:self-start z-10">
+          {/* Left Column: Interactive Filter Sidebar (Sticky, Left Corner, ml-5) - hidden on mobile, inline on desktop */}
+          <div className="hidden lg:block lg:w-[250px] shrink-0 ml-5 lg:sticky lg:top-24 lg:self-start z-10">
             <FilterSidebar 
               brands={dbBrands}
               categories={dbCategories}

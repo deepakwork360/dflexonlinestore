@@ -1,15 +1,16 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { X, Check } from "lucide-react";
+import { X, Check, ArrowLeft } from "lucide-react";
 
 interface FilterSidebarProps {
   brands: Array<{ id: string; name: string; slug: string }>;
   categories: Array<{ id: string; name: string; slug: string }>;
   sizes: Array<{ id: string; name: string; value: string }>;
+  onClose?: () => void;
 }
 
-export default function FilterSidebar({ brands, categories, sizes }: FilterSidebarProps) {
+export default function FilterSidebar({ brands, categories, sizes, onClose }: FilterSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,10 +61,21 @@ export default function FilterSidebar({ brands, categories, sizes }: FilterSideb
     <div className="w-full flex flex-col space-y-8 pr-0 lg:pr-6 text-left">
       
       {/* Sidebar Header & Clear Actions */}
-      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900">
-          Filters
-        </h2>
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-900">
+        <div className="flex items-center gap-2">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1 -ml-1 rounded-full hover:bg-neutral-150 dark:hover:bg-neutral-900 lg:hidden mr-1 cursor-pointer"
+              aria-label="Close filters"
+            >
+              <ArrowLeft className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+            </button>
+          )}
+          <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-900 dark:text-white">
+            Filters
+          </h2>
+        </div>
         {hasActiveFilters && (
           <button
             onClick={handleClearAll}

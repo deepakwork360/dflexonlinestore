@@ -97,19 +97,24 @@ export default function CategoryNavigation() {
           
           {/* Left Side: Category Links */}
           <nav className="flex items-center gap-6 overflow-x-auto scrollbar-none py-1 md:overflow-visible">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-200 hover:text-red-300 ${
-                  item.isHighlight
-                    ? "text-rose-500 font-semibold"
-                    : "text-neutral-300 dark:text-neutral-400"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isMobileHidden = item.name === "Clothes" || item.name === "Accessories";
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-200 hover:text-red-300 ${
+                    isMobileHidden ? "hidden sm:inline-block" : "inline-block"
+                  } ${
+                    item.isHighlight
+                      ? "text-rose-500 font-semibold"
+                      : "text-neutral-300 dark:text-neutral-400"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Side: Stateful Debounced Live Search */}
