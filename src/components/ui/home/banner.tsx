@@ -17,22 +17,23 @@ const GENDER_IMAGES: Record<string, { images: ImageConfig[]; target: string }> =
   men: {
     images: [
       { src: "/images/4.jpg", position: "50% 45%" },
-      { src: "/images/3.jpg", position: "50% 40%" },
+      { src: "/images/male1.jpg", position: "50% 40%" },
       { src: "/images/male.jpg", position: "50% 40%" },
     ],
     target: "men",
   },
   women: {
     images: [
-      { src: "/images/2.jpg", position: "50% 40%" },
-      { src: "/images/7.jpg", position: "50% 50%" },
-       { src: "/images/1.jpg", position: "50% 50%" },
+      { src: "/images/kendal3.jpg", position: "50% 50%" },
+      { src: "/images/kendal.jpg", position: "50% 50%" },
+      { src: "/images/kendal2.jpg", position: "50% 40%" },
     ],
     target: "women",
   },
   kids: {
     images: [
-        { src: "/images/kid2.jpg", position: "50% 22%" },
+      { src: "/images/kid2.jpg", position: "50% 22%" },
+      { src: "/images/kid0.jpg", position: "50% 12%" },
     ],
     target: "kids",
   },
@@ -48,7 +49,7 @@ const DEFAULT_BANNER = {
 export default function Banner({ gender }: BannerProps) {
   const genderKey = gender?.toLowerCase() || "";
   const config = GENDER_IMAGES[genderKey] || DEFAULT_BANNER;
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Instantly reset slider to primary index when active gender tab changes
@@ -69,15 +70,14 @@ export default function Banner({ gender }: BannerProps) {
 
   return (
     <section className="relative w-full h-[80vh] overflow-hidden bg-neutral-950">
-      
+
       {/* Background Image Container */}
       <div className="absolute inset-0 w-full h-full">
         {config.images.map((img, idx) => (
           <div
             key={img.src + idx}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-              idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
           >
             <Image
               src={img.src}
@@ -90,7 +90,7 @@ export default function Banner({ gender }: BannerProps) {
             />
           </div>
         ))}
-        
+
         {/* Sleek luxury gradient overlay to ensure perfect text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent z-20" />
       </div>
@@ -98,7 +98,7 @@ export default function Banner({ gender }: BannerProps) {
       {/* Content Layer (Left aligned matching high-end look) */}
       <div className="relative h-full w-full mx-auto px-6 sm:px-12 lg:px-20 flex items-center z-25">
         <div className="max-w-2xl text-left space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-left-5 duration-700">
-          
+
           <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-600/20 px-3 py-1 text-[10px] font-bold text-rose-500 uppercase tracking-widest border border-rose-500/25">
             Premium Drop
           </span>
@@ -134,11 +134,10 @@ export default function Banner({ gender }: BannerProps) {
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex
-                  ? "w-6 bg-white"
-                  : "w-1.5 bg-white/40 hover:bg-white/60"
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex
+                ? "w-6 bg-white"
+                : "w-1.5 bg-white/40 hover:bg-white/60"
+                }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
