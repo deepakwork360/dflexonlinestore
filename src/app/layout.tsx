@@ -3,10 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import MainHeader from "@/components/ui/layout/MainHeader";
+import Footer from "@/components/ui/layout/Footer";
 import { Volkhov } from "next/font/google";
 import TopAnnouncementBar from "@/components/ui/layout/TopAnnouncementBar";
 import { CartProvider } from "@/context/CartContext";
 import { Toaster } from "sonner";
+import CartDrawer from "@/components/ui/cart/CartDrawer";
 
 const volkhov = Volkhov({
   subsets: ["latin"],
@@ -44,7 +46,9 @@ export default function RootLayout({
         <CartProvider>
           <TopAnnouncementBar />
           <MainHeader />
-          {children}
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          <CartDrawer />
           <Toaster position="bottom-right" richColors closeButton />
         </CartProvider>
       </body>

@@ -95,6 +95,32 @@ export default async function GenderCollectionPage({ params }: Props) {
     take: 12,
   });
 
+  const brandCards = await prisma.brand.findMany({
+    include: {
+      products: {
+        where: {
+          gender: dbGender,
+        },
+        include: {
+          images: {
+            orderBy: {
+              sortOrder: "asc",
+            },
+            take: 1,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+    take: 5,
+  });
+
   return (
     <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-0">
 
@@ -332,41 +358,21 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-6">
-          {[
-            {
-              name: "Nike",
-              slug: "nike",
-              img: "https://images.unsplash.com/photo-1644338912375-f46319e7bf5e?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            },
-            {
-              name: "Adidas",
-              slug: "adidas",
-              img: "https://images.unsplash.com/photo-1555274175-75f4056dfd05?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            },
-            {
-              name: "Puma",
-              slug: "puma",
-              img: "https://images.unsplash.com/photo-1629753897877-522619845842?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            },
-            {
-              name: "Vans",
-              slug: "vans",
-              img: "https://images.unsplash.com/photo-1777764348524-6404c69cdea5?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            },
-            {
-              name: "Jordan",
-              slug: "jordan",
-              img: "https://images.unsplash.com/photo-1706571717924-934a8a7c2aa7?q=80&w=1039&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            },
-          ].map((brand, i) => (
+          {brandCards.map((brand) => {
+            const imageUrl =
+              brand.logo ||
+              brand.products[0]?.images[0]?.url ||
+              "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200&auto=format&fit=crop";
+
+            return (
             <Link
-              key={i}
+              key={brand.id}
               href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
               className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
             >
               {/* Background Image */}
               <Image
-                src={brand.img}
+                src={imageUrl}
                 alt={`${brand.name} collection`}
                 fill
                 sizes="(max-w-768px) 50vw, 20vw"
@@ -389,7 +395,8 @@ export default async function GenderCollectionPage({ params }: Props) {
                 </span>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 

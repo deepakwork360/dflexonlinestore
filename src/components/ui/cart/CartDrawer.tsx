@@ -40,7 +40,7 @@ export default function CartDrawer() {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[1000] bg-black/50 transition-opacity duration-300 ${
           isDrawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={closeDrawer}
@@ -52,7 +52,7 @@ export default function CartDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Shopping Cart"
-        className={`fixed top-0 right-0 h-full w-full max-w-[420px] bg-white z-50 flex flex-col shadow-2xl transition-transform duration-400 ease-out ${
+        className={`fixed top-0 right-0 z-[1001] flex h-dvh w-full max-w-[420px] flex-col bg-white shadow-2xl transition-transform duration-400 ease-out ${
           isDrawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

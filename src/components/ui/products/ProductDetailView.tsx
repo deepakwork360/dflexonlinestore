@@ -16,6 +16,8 @@ import {
   Minus,
   Info,
   Sparkles,
+  Camera,
+  Maximize2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -86,6 +88,7 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "specifications" | "shipping">("details");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Filter variants belonging to selected color
   const colorVariants = useMemo(() => {
@@ -97,27 +100,14 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
     return colorVariants.find((v) => v.sizeId === selectedSizeId);
   }, [colorVariants, selectedSizeId]);
 
-  // Gallery images (exactly 4 photos to populate our Besnard grid layout)
+  // Gallery supports up to 10 real product photos.
   const galleryImages = useMemo(() => {
-    const list = [...product.images];
-    if (list.length < 4 && list.length > 0) {
-      const baseImg = list[0].url;
-      const angles = [
-        "&auto=format&fit=crop&w=800&q=80&fit=facearea", 
-        "&auto=format&fit=crop&w=800&q=80&sat=-50", 
-        "&auto=format&fit=crop&w=800&q=80&hue=290"
-      ];
-      for (let i = list.length; i < 4; i++) {
-        list.push({
-          id: `virtual-${i}`,
-          url: `${baseImg}${angles[i % angles.length]}`,
-          altText: `${product.name} Alternative Angle View`,
-          isPrimary: false,
-        });
-      }
-    }
-    return list.slice(0, 4);
-  }, [product.images, product.name]);
+    const primary = product.images.find((image) => image.isPrimary);
+    const rest = product.images.filter((image) => image.id !== primary?.id);
+    return [...(primary ? [primary] : []), ...rest].slice(0, 10);
+  }, [product.images]);
+
+  const activeImage = galleryImages[activeImageIndex] || galleryImages[0];
 
   // Pricing math based on active selection
   const priceDisplay = activeVariant?.price ? activeVariant.price : product.price;
@@ -215,73 +205,106 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
         </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
         
-        {/* LEFT COLUMN: Premium Asymmetric Image Gallery Grid (7 columns) */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
-          
-          {/* 1. Large Showcase Top Image */}
-          <div className="aspect-[4/3] relative w-full overflow-hidden rounded-none bg-neutral-50 border border-neutral-150/40 group shadow-sm">
-            {/* Gender Pill Overlay */}
-            <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1 rounded-none bg-black px-3.5 py-1 text-[9px] font-bold text-white uppercase tracking-widest">
-              <Sparkles className="h-3 w-3 text-rose-500 animate-pulse" />
-              {product.gender}
-            </span>
+        {/* LEFT COLUMN: Premium 10-photo gallery */}
+        <div className="lg:col-span-6">
+          <div className="sticky top-6 space-y-4">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
+              <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-2">
+                <span className="inline-flex h-7 items-center gap-1.5 rounded bg-black px-3 text-[9px] font-bold uppercase tracking-widest text-white">
+                  <Sparkles className="h-3 w-3 text-rose-500" />
+                  {product.gender}
+                </span>
+                <span className="inline-flex h-7 items-center gap-1.5 rounded bg-white/90 px-3 text-[9px] font-black uppercase tracking-widest text-neutral-950 backdrop-blur">
+                  <Camera className="h-3 w-3" />
+                  {galleryImages.length}/10 photos
+                </span>
+              </div>
 
-            {/* Discount Badge */}
-            {hasDiscount && (
-              <span className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 rounded-none bg-rose-600 px-3.5 py-1 text-[9px] font-black text-white uppercase tracking-wider shadow-sm">
-                SAVE {discountPercent}%
-              </span>
+              {hasDiscount && (
+                <span className="absolute right-4 top-4 z-10 inline-flex h-7 items-center rounded bg-rose-600 px-3 text-[9px] font-black uppercase tracking-wider text-white shadow-sm">
+                  Save {discountPercent}%
+                </span>
+              )}
+
+              {activeImage ? (
+                <Image
+                  src={activeImage.url}
+                  alt={activeImage.altText || product.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  priority
+                  className="select-none object-contain object-center p-6 transition-transform duration-700 hover:scale-[1.02]"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-xs font-bold uppercase tracking-widest text-neutral-400">
+                  No product photo
+                </div>
+              )}
+
+              <div className="absolute bottom-4 right-4 z-10 inline-flex h-9 items-center gap-2 rounded bg-white/90 px-3 text-[10px] font-bold uppercase tracking-wider text-neutral-900 backdrop-blur">
+                <Maximize2 className="h-3.5 w-3.5" />
+                View {activeImageIndex + 1}
+              </div>
+            </div>
+
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+                {galleryImages.map((image, index) => (
+                  <button
+                    key={image.id}
+                    type="button"
+                    onClick={() => setActiveImageIndex(index)}
+                    className={`relative aspect-square overflow-hidden rounded-md border bg-neutral-100 transition ${
+                      activeImageIndex === index
+                        ? "border-neutral-950 ring-2 ring-neutral-950/10"
+                        : "border-neutral-200 hover:border-neutral-500"
+                    }`}
+                    aria-label={`Show product photo ${index + 1}`}
+                  >
+                    <Image
+                      src={image.url}
+                      alt={image.altText || `${product.name} photo ${index + 1}`}
+                      fill
+                      sizes="80px"
+                      className="object-contain object-center p-1"
+                    />
+                    {index === 9 && product.images.length > 10 && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/60 text-[10px] font-black text-white">
+                        +{product.images.length - 10}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             )}
 
-            <Image
-              src={galleryImages[0]?.url}
-              alt={galleryImages[0]?.altText || product.name}
-              fill
-              sizes="(max-w-1024px) 100vw, 55vw"
-              priority
-              className="object-cover object-center select-none"
-            />
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                {galleryImages.slice(1).map((image, index) => (
+                  <button
+                    key={image.id}
+                    type="button"
+                    onClick={() => setActiveImageIndex(index + 1)}
+                    className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-neutral-200 bg-white"
+                  >
+                    <Image
+                      src={image.url}
+                      alt={image.altText || `${product.name} detail ${index + 1}`}
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 28vw"
+                      className="object-contain object-center p-3 transition duration-500 group-hover:scale-105"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* 2. Middle Row: Two Square Images Side-by-Side */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="aspect-square relative w-full overflow-hidden rounded-none bg-neutral-50 border border-neutral-150/40">
-              <Image
-                src={galleryImages[1]?.url}
-                alt={galleryImages[1]?.altText || product.name}
-                fill
-                sizes="(max-w-1024px) 50vw, 28vw"
-                className="object-cover object-center select-none"
-              />
-            </div>
-            <div className="aspect-square relative w-full overflow-hidden rounded-none bg-neutral-50 border border-neutral-150/40">
-              <Image
-                src={galleryImages[2]?.url}
-                alt={galleryImages[2]?.altText || product.name}
-                fill
-                sizes="(max-w-1024px) 50vw, 28vw"
-                className="object-cover object-center select-none"
-              />
-            </div>
-          </div>
-
-          {/* 3. Bottom Row: One Wide Close-Up Image */}
-          <div className="aspect-[2/1] relative w-full overflow-hidden rounded-none bg-neutral-50 border border-neutral-150/40">
-            <Image
-              src={galleryImages[3]?.url}
-              alt={galleryImages[3]?.altText || product.name}
-              fill
-              sizes="(max-w-1024px) 100vw, 55vw"
-              className="object-cover object-center select-none"
-            />
-          </div>
-
         </div>
 
         {/* RIGHT COLUMN: Besnard-Style Clean Details (5 columns) */}
-        <div className="lg:col-span-5 flex flex-col justify-start text-left space-y-6 lg:py-2">
+        <div className="lg:col-span-6 flex flex-col justify-start text-left space-y-6 lg:py-2">
           
           {/* Brand releasing tag */}
           <div>
@@ -399,7 +422,7 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-5 text-xs font-bold text-neutral-450">
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 text-xs font-bold">
               {colorVariants.map((v) => {
                 const isOutOfStock = v.stock <= 0;
                 const isSelected = selectedSizeId === v.sizeId;
@@ -409,12 +432,12 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
                     key={v.id}
                     disabled={isOutOfStock}
                     onClick={() => setSelectedSizeId(v.sizeId)}
-                    className={`pb-0.5 tracking-wider transition-all duration-200 cursor-pointer ${
+                    className={`h-11 flex items-center justify-center border tracking-wider transition-all duration-200 cursor-pointer select-none rounded-none ${
                       isSelected
-                        ? "text-black border-b-2 border-black font-black scale-105"
+                        ? "bg-black border-black text-white font-black scale-[1.02] shadow-sm"
                         : isOutOfStock
-                        ? "text-neutral-200 line-through cursor-not-allowed"
-                        : "text-neutral-400 hover:text-neutral-850"
+                        ? "bg-neutral-50 border-neutral-100 text-neutral-300 line-through opacity-50 cursor-not-allowed"
+                        : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-900 hover:text-neutral-950 hover:bg-neutral-50"
                     }`}
                   >
                     {v.size.name}
@@ -732,7 +755,7 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
                 <div className="space-y-1">
                   {review.title && (
                     <h5 className="text-xs font-black text-neutral-900 uppercase tracking-wider">
-                      "{review.title}"
+                      &quot;{review.title}&quot;
                     </h5>
                   )}
                   <p className="text-xs text-neutral-600 leading-relaxed font-medium">

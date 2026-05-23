@@ -12,9 +12,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "dribbble.com",
+        hostname: "images.dribbble.com",
         
       },
+      {
+        protocol: "https",
+        hostname: "cdn-images.farfetch-contents.com"
+      }
     ],
   },
 };
