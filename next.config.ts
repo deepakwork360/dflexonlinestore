@@ -8,16 +8,22 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
-
       },
       {
         protocol: "https",
         hostname: "images.dribbble.com",
-        
       },
       {
         protocol: "https",
-        hostname: "cdn-images.farfetch-contents.com"
+        hostname: "cdn-images.farfetch-contents.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pinimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.pinimg.com",
       }
     ],
   },

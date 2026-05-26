@@ -64,7 +64,7 @@ export default function Banner({ gender }: BannerProps) {
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % config.images.length);
-    }, 10000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [config.images.length, genderKey]);

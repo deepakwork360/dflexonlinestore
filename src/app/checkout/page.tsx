@@ -13,8 +13,10 @@ import {
   ShieldCheck,
   CheckCircle2,
   Tag,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { validateCoupon } from "@/app/admin/actions";
 
 interface FormData {
   firstName: string;
@@ -47,9 +49,65 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const shipping = subtotal >= 100 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+  const [couponCode, setCouponCode] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string;
+    code: string;
+    discountType: string;
+    discountValue: number;
+    maxDiscount: number | null;
+    minOrderValue: number | null;
+  } | null>(null);
+
+  // Coupon calculations
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === "PERCENTAGE") {
+      discount = subtotal * (appliedCoupon.discountValue / 100);
+      if (appliedCoupon.maxDiscount && discount > appliedCoupon.maxDiscount) {
+        discount = appliedCoupon.maxDiscount;
+      }
+    } else {
+      discount = appliedCoupon.discountValue;
+    }
+    if (discount > subtotal) {
+      discount = subtotal;
+    }
+  }
+
+  const discountedSubtotal = subtotal - discount;
+  const shipping = discountedSubtotal >= 100 ? 0 : 9.99;
+  const tax = discountedSubtotal * 0.08;
+  const total = discountedSubtotal + shipping + tax;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code.");
+      return;
+    }
+
+    setIsValidatingCoupon(true);
+    try {
+      const res = await validateCoupon(couponCode, subtotal);
+      if (res.success && res.coupon) {
+        setAppliedCoupon(res.coupon);
+        toast.success(`Coupon "${res.coupon.code}" applied!`);
+      } else {
+        toast.error(res.message || "Failed to apply coupon.");
+      }
+    } catch (err: any) {
+      toast.error("Error applying coupon.");
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast.success("Coupon removed.");
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -250,12 +308,60 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Coupon Application */}
+            <div className="border-t border-neutral-100 pt-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                Promo Code
+              </p>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200/60 rounded-lg p-2.5">
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                      {appliedCoupon.code} Applied
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="text-emerald-600 hover:text-emerald-800 transition"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="E.G. SUMMER20"
+                    className="flex-1 rounded-none border border-neutral-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wider text-neutral-800 placeholder-neutral-300 focus:outline-none focus:border-black transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={isValidatingCoupon}
+                    className="bg-black text-white px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50"
+                  >
+                    {isValidatingCoupon ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Totals */}
             <div className="border-t border-neutral-100 pt-4 space-y-2 text-xs">
               <div className="flex justify-between text-neutral-500 font-semibold">
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-emerald-600 font-bold">
+                  <span>Discount</span>
+                  <span>-${discount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-neutral-500 font-semibold">
                 <span className="flex items-center gap-1">
                   Shipping

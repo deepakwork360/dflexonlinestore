@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Plus, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Input } from "@/components/ui/input";
 import ProductPhotoInputs from "../../ProductPhotoInputs";
-import { createVariant, updateProduct, updateVariantDetails } from "../../../actions";
+import { updateProduct } from "../../../actions";
 import DeleteProductButton from "../../DeleteProductButton";
+import ProductVariantsManager from "../../ProductVariantsManager";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -40,6 +41,9 @@ export default async function AdminEditProductPage({ params }: Props) {
     notFound();
   }
 
+  // Extract all unique colors from existing variants
+  const activeColors = Array.from(new Set(product.variants.map((v) => v.color).filter(Boolean)));
+
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -67,7 +71,9 @@ export default async function AdminEditProductPage({ params }: Props) {
       </div>
 
       <section className="grid gap-6 xl:grid-cols-[520px_1fr]">
-        <form action={updateProduct} className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
+        
+        {/* Product Details Form */}
+        <form action={updateProduct} className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-sm h-fit">
           <input type="hidden" name="productId" value={product.id} />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -76,7 +82,7 @@ export default async function AdminEditProductPage({ params }: Props) {
               <Input name="name" required defaultValue={product.name} className="mt-1" />
             </label>
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              SKU
+              Global SKU (Base)
               <Input name="sku" defaultValue={product.sku || ""} className="mt-1" />
             </label>
           </div>
@@ -138,28 +144,69 @@ export default async function AdminEditProductPage({ params }: Props) {
             </label>
           </div>
 
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 space-y-3">
+            <h3 className="text-xs font-black uppercase tracking-wider text-neutral-800">
+              Colorway Group Linking
+            </h3>
+            <p className="text-[10px] font-semibold text-neutral-400">
+              To present colors as separate products in your store while linking them seamlessly, assign them the exact SAME Color Group handle.
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                Color Name
+                <Input name="color" placeholder="E.g. Core Black" defaultValue={product.color || ""} className="mt-1 bg-white h-8 text-xs font-semibold" />
+              </label>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                Color Hex
+                <Input name="colorHex" placeholder="E.g. #000000" defaultValue={product.colorHex || ""} className="mt-1 bg-white h-8 text-xs font-semibold" />
+              </label>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                Color Group
+                <Input name="colorGroup" placeholder="E.g. vans-old-skool" defaultValue={product.colorGroup || ""} className="mt-1 bg-white h-8 text-xs font-semibold" />
+              </label>
+            </div>
+          </div>
+
           <div className="rounded-lg border border-neutral-200 p-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-neutral-900">
               Current Photos
             </h3>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {product.images.map((image, index) => (
-                <div key={image.id} className="rounded-md border border-neutral-200 p-2">
-                  <div className="relative aspect-square overflow-hidden rounded bg-neutral-100">
-                    <Image src={image.url} alt={image.altText || product.name} fill sizes="160px" className="object-cover" />
+                <div key={image.id} className="rounded-md border border-neutral-200 p-2 flex flex-col justify-between">
+                  <div>
+                    <div className="relative aspect-square overflow-hidden rounded bg-neutral-100">
+                      <Image src={image.url} alt={image.altText || product.name} fill sizes="160px" className="object-cover" />
+                    </div>
+                    <label className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                      <input
+                        type="radio"
+                        name="primaryImageId"
+                        value={image.id}
+                        defaultChecked={image.isPrimary || index === 0}
+                      />
+                      Primary
+                    </label>
+                    <label className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                      <input type="checkbox" name="removeImageIds" value={image.id} />
+                      Remove
+                    </label>
                   </div>
-                  <label className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                    <input
-                      type="radio"
-                      name="primaryImageId"
-                      value={image.id}
-                      defaultChecked={image.isPrimary || index === 0}
-                    />
-                    Primary
-                  </label>
-                  <label className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-rose-600">
-                    <input type="checkbox" name="removeImageIds" value={image.id} />
-                    Remove
+
+                  <label className="mt-2 block text-[9px] font-bold uppercase tracking-wider text-neutral-500">
+                    Color Tag
+                    <select
+                      name={`imageColor_${image.id}`}
+                      defaultValue={image.color || ""}
+                      className="mt-1 w-full rounded border border-neutral-200 bg-white p-1 text-[10px] font-semibold text-neutral-800"
+                    >
+                      <option value="">All Colors (General)</option>
+                      {activeColors.map((color) => (
+                        <option key={color} value={color}>
+                          {color}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                 </div>
               ))}
@@ -171,134 +218,32 @@ export default async function AdminEditProductPage({ params }: Props) {
               Add More Photos
             </h3>
             <div className="mt-3">
-              <ProductPhotoInputs />
+              <ProductPhotoInputs activeColors={activeColors} />
             </div>
           </div>
 
-          <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-neutral-800">
+          <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-neutral-800 cursor-pointer">
             <Save className="h-4 w-4" />
             Save Product Details
           </button>
         </form>
 
+        {/* Dynamic Interactive Variants Management */}
         <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-black uppercase tracking-tight">Variants</h3>
-          <p className="mt-1 text-xs text-neutral-500">
-            Edit size-specific merchandising, SKUs, prices, and stock.
-          </p>
+          <div className="mb-2">
+            <h3 className="text-lg font-black uppercase tracking-tight text-neutral-900">Merchandising Variants</h3>
+            <p className="mt-1 text-xs text-neutral-500">
+              Edit colorway hex codes, override variant prices, update inventory stock, and use SKU generators.
+            </p>
+          </div>
 
-          <form action={createVariant} className="mt-5 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-            <input type="hidden" name="productId" value={product.id} />
-            <div className="mb-4 flex items-center gap-2">
-              <Plus className="h-4 w-4 text-rose-600" />
-              <h4 className="text-sm font-black uppercase tracking-tight">Add Variant</h4>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Existing Size
-                <select
-                  name="sizeId"
-                  className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-sm"
-                >
-                  <option value="">Select size</option>
-                  {sizes.map((size) => (
-                    <option key={size.id} value={size.id}>
-                      {size.name} ({size.system})
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                New Size Name
-                <Input name="newSizeName" className="mt-1 h-9 text-xs" placeholder="US 8" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                New Size Value
-                <Input name="newSizeValue" className="mt-1 h-9 text-xs" placeholder="8" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Size System
-                <Input name="newSizeSystem" defaultValue="US" className="mt-1 h-9 text-xs" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                SKU
-                <Input name="sku" required className="mt-1 h-9 text-xs" placeholder="PUMA-RED-US8" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Stock
-                <Input name="stock" required type="number" min="0" defaultValue={0} className="mt-1 h-9 text-xs" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Color
-                <Input name="color" required className="mt-1 h-9 text-xs" placeholder="Rose Red" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Color Hex
-                <Input name="colorHex" className="mt-1 h-9 text-xs" placeholder="#dc2626" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Variant Price
-                <Input name="price" type="number" step="0.01" min="0" className="mt-1 h-9 text-xs" placeholder="Optional" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Compare Price
-                <Input name="compareAtPrice" type="number" step="0.01" min="0" className="mt-1 h-9 text-xs" placeholder="Optional" />
-              </label>
-            </div>
-            <button className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-xs font-bold uppercase tracking-wider text-white hover:bg-neutral-800">
-              <Plus className="h-4 w-4" />
-              Add Variant
-            </button>
-          </form>
-
-          <div className="mt-5 space-y-3">
-            {product.variants.length === 0 ? (
-              <div className="rounded-md border border-dashed border-neutral-200 p-8 text-center text-sm text-neutral-500">
-                No variants exist for this product yet. Add the first size/SKU above.
-              </div>
-            ) : (
-              product.variants.map((variant) => (
-                <form key={variant.id} action={updateVariantDetails} className="rounded-md border border-neutral-200 p-3">
-                  <input type="hidden" name="variantId" value={variant.id} />
-                  <input type="hidden" name="productId" value={product.id} />
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-black uppercase tracking-tight">{variant.size.name}</p>
-                      <p className="text-xs text-neutral-500">{variant.size.system} / {variant.size.value}</p>
-                    </div>
-                    <button className="inline-flex h-8 items-center rounded-md bg-neutral-950 px-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-neutral-800">
-                      Save
-                    </button>
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      SKU
-                      <Input name="sku" required defaultValue={variant.sku} className="mt-1 h-8 text-xs" />
-                    </label>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      Color
-                      <Input name="color" required defaultValue={variant.color} className="mt-1 h-8 text-xs" />
-                    </label>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      Color Hex
-                      <Input name="colorHex" defaultValue={variant.colorHex || ""} className="mt-1 h-8 text-xs" />
-                    </label>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      Variant Price
-                      <Input name="price" type="number" step="0.01" min="0" defaultValue={decimalValue(variant.price)} className="mt-1 h-8 text-xs" />
-                    </label>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      Compare Price
-                      <Input name="compareAtPrice" type="number" step="0.01" min="0" defaultValue={decimalValue(variant.compareAtPrice)} className="mt-1 h-8 text-xs" />
-                    </label>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                      Stock
-                      <Input name="stock" required type="number" min="0" defaultValue={variant.stock} className="mt-1 h-8 text-xs" />
-                    </label>
-                  </div>
-                </form>
-              ))
-            )}
+          <div className="mt-5">
+            <ProductVariantsManager
+              productId={product.id}
+              productName={product.name}
+              initialVariants={product.variants}
+              sizes={sizes}
+            />
           </div>
         </div>
       </section>

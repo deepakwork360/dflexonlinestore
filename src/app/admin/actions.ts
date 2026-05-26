@@ -9,6 +9,7 @@ import {
   PaymentStatus,
   Prisma,
   ProductStatus,
+  DiscountType,
 } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -192,6 +193,9 @@ export async function updateProduct(formData: FormData) {
   const categoryId = optionalTextValue(formData, "categoryId");
   const gender = enumValue(GenderTarget, textValue(formData, "gender"), GenderTarget.WOMEN);
   const status = enumValue(ProductStatus, textValue(formData, "status"), ProductStatus.DRAFT);
+  const color = optionalTextValue(formData, "color");
+  const colorHex = optionalTextValue(formData, "colorHex");
+  const colorGroup = optionalTextValue(formData, "colorGroup");
   const primaryImageId = optionalTextValue(formData, "primaryImageId");
   const removeImageIds = formData
     .getAll("removeImageIds")
@@ -236,8 +240,20 @@ export async function updateProduct(formData: FormData) {
         status,
         brandId,
         categoryId,
+        color,
+        colorHex,
+        colorGroup,
       },
     });
+
+    // Update existing images color fields
+    for (const image of remainingImages) {
+      const colorVal = optionalTextValue(formData, `imageColor_${image.id}`);
+      await tx.productImage.update({
+        where: { id: image.id },
+        data: { color: colorVal },
+      });
+    }
 
     if (removeImageIds.length > 0) {
       await tx.productImage.deleteMany({
@@ -249,15 +265,20 @@ export async function updateProduct(formData: FormData) {
     }
 
     if (newImageUrls.length > 0) {
-      await tx.productImage.createMany({
-        data: newImageUrls.map((url, index) => ({
-          productId,
-          url,
-          altText: `${name} product image`,
-          isPrimary: false,
-          sortOrder: remainingImages.length + index + 1,
-        })),
-      });
+      for (let index = 0; index < newImageUrls.length; index++) {
+        const url = newImageUrls[index];
+        const colorVal = optionalTextValue(formData, `newImageColor_${index}`);
+        await tx.productImage.create({
+          data: {
+            productId,
+            url,
+            altText: `${name} product image`,
+            isPrimary: false,
+            sortOrder: remainingImages.length + index + 1,
+            color: colorVal,
+          },
+        });
+      }
     }
 
     const finalImages = await tx.productImage.findMany({
@@ -516,4 +537,457 @@ export async function upsertStoreSetting(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/settings");
   revalidatePath("/");
+}
+
+async function uniqueCategorySlug(name: string, excludedCategoryId?: string) {
+  const baseSlug = slugify(name);
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (
+    await prisma.category.findFirst({
+      where: {
+        slug,
+        ...(excludedCategoryId ? { id: { not: excludedCategoryId } } : {}),
+      },
+      select: { id: true },
+    })
+  ) {
+    slug = `${baseSlug}-${counter}`;
+    counter += 1;
+  }
+
+  return slug;
+}
+
+export async function createCategory(formData: FormData) {
+  const name = textValue(formData, "name");
+  const description = optionalTextValue(formData, "description");
+  const image = optionalTextValue(formData, "image");
+  const parentId = optionalTextValue(formData, "parentId");
+
+  if (!name) {
+    throw new Error("Category name is required.");
+  }
+
+  await prisma.category.create({
+    data: {
+      name,
+      slug: await uniqueCategorySlug(name),
+      description,
+      image,
+      parentId,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
+}
+
+export async function updateCategory(formData: FormData) {
+  const categoryId = textValue(formData, "categoryId");
+  const name = textValue(formData, "name");
+  const description = optionalTextValue(formData, "description");
+  const image = optionalTextValue(formData, "image");
+  const parentId = optionalTextValue(formData, "parentId");
+
+  if (!categoryId || !name) {
+    throw new Error("Category ID and name are required.");
+  }
+
+  if (parentId === categoryId) {
+    throw new Error("A category cannot be its own parent.");
+  }
+
+  await prisma.category.update({
+    where: { id: categoryId },
+    data: {
+      name,
+      slug: await uniqueCategorySlug(name, categoryId),
+      description,
+      image,
+      parentId: parentId || null,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
+}
+
+export async function deleteCategory(formData: FormData) {
+  const categoryId = textValue(formData, "categoryId");
+
+  if (!categoryId) {
+    throw new Error("Category ID is required.");
+  }
+
+  await prisma.category.delete({
+    where: { id: categoryId },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
+}
+
+export async function createCoupon(formData: FormData) {
+  const code = textValue(formData, "code").toUpperCase();
+  const discountType = enumValue(DiscountType, textValue(formData, "discountType"), DiscountType.PERCENTAGE);
+  const discountValue = textValue(formData, "discountValue");
+  const minOrderValue = optionalTextValue(formData, "minOrderValue");
+  const maxDiscount = optionalTextValue(formData, "maxDiscount");
+  const startDateStr = textValue(formData, "startDate");
+  const endDateStr = textValue(formData, "endDate");
+  const usageLimitStr = optionalTextValue(formData, "usageLimit");
+  const isActive = formData.get("isActive") === "on";
+
+  if (!code || !discountValue || !startDateStr || !endDateStr) {
+    throw new Error("Code, discount value, start date, and end date are required.");
+  }
+
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+  const usageLimit = usageLimitStr ? parseInt(usageLimitStr, 10) : null;
+
+  await prisma.coupon.create({
+    data: {
+      code,
+      discountType,
+      discountValue: new Prisma.Decimal(discountValue),
+      minOrderValue: minOrderValue ? new Prisma.Decimal(minOrderValue) : null,
+      maxDiscount: maxDiscount ? new Prisma.Decimal(maxDiscount) : null,
+      startDate,
+      endDate,
+      usageLimit,
+      isActive,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/coupons");
+}
+
+export async function updateCoupon(formData: FormData) {
+  const couponId = textValue(formData, "couponId");
+  const code = textValue(formData, "code").toUpperCase();
+  const discountType = enumValue(DiscountType, textValue(formData, "discountType"), DiscountType.PERCENTAGE);
+  const discountValue = textValue(formData, "discountValue");
+  const minOrderValue = optionalTextValue(formData, "minOrderValue");
+  const maxDiscount = optionalTextValue(formData, "maxDiscount");
+  const startDateStr = textValue(formData, "startDate");
+  const endDateStr = textValue(formData, "endDate");
+  const usageLimitStr = optionalTextValue(formData, "usageLimit");
+  const isActive = formData.get("isActive") === "on";
+
+  if (!couponId || !code || !discountValue || !startDateStr || !endDateStr) {
+    throw new Error("Coupon, code, discount value, start date, and end date are required.");
+  }
+
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+  const usageLimit = usageLimitStr ? parseInt(usageLimitStr, 10) : null;
+
+  await prisma.coupon.update({
+    where: { id: couponId },
+    data: {
+      code,
+      discountType,
+      discountValue: new Prisma.Decimal(discountValue),
+      minOrderValue: minOrderValue ? new Prisma.Decimal(minOrderValue) : null,
+      maxDiscount: maxDiscount ? new Prisma.Decimal(maxDiscount) : null,
+      startDate,
+      endDate,
+      usageLimit,
+      isActive,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/coupons");
+}
+
+export async function deleteCoupon(formData: FormData) {
+  const couponId = textValue(formData, "couponId");
+
+  if (!couponId) {
+    throw new Error("Coupon is required.");
+  }
+
+  await prisma.coupon.delete({
+    where: { id: couponId },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/coupons");
+}
+
+export async function validateCoupon(code: string, subtotal: number) {
+  if (!code) {
+    return { success: false, message: "Please enter a coupon code." };
+  }
+
+  const coupon = await prisma.coupon.findUnique({
+    where: { code: code.toUpperCase() },
+  });
+
+  if (!coupon) {
+    return { success: false, message: "Invalid coupon code." };
+  }
+
+  if (!coupon.isActive) {
+    return { success: false, message: "This coupon is no longer active." };
+  }
+
+  const now = new Date();
+  if (now < coupon.startDate) {
+    return { success: false, message: "This coupon has not started yet." };
+  }
+
+  if (now > coupon.endDate) {
+    return { success: false, message: "This coupon has expired." };
+  }
+
+  if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
+    return { success: false, message: "This coupon has reached its usage limit." };
+  }
+
+  const minOrder = coupon.minOrderValue ? Number(coupon.minOrderValue) : 0;
+  if (subtotal < minOrder) {
+    return {
+      success: false,
+      message: `Minimum order value of $${minOrder.toFixed(2)} required to use this coupon.`,
+    };
+  }
+
+  return {
+    success: true,
+    coupon: {
+      id: coupon.id,
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: Number(coupon.discountValue),
+      maxDiscount: coupon.maxDiscount ? Number(coupon.maxDiscount) : null,
+      minOrderValue: coupon.minOrderValue ? Number(coupon.minOrderValue) : null,
+    },
+  };
+}
+
+export async function createReview(formData: FormData) {
+  const productId = textValue(formData, "productId");
+  const email = textValue(formData, "email");
+  const name = textValue(formData, "name");
+  const rating = Number(textValue(formData, "rating") || "5");
+  const title = textValue(formData, "title") || null;
+  const comment = textValue(formData, "comment") || null;
+
+  if (!productId || !email || !name || !rating) {
+    throw new Error("Missing required review fields.");
+  }
+
+  // Find or create User by email
+  let user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email,
+        name,
+      },
+    });
+  }
+
+  // Create review
+  await prisma.review.create({
+    data: {
+      productId,
+      userId: user.id,
+      rating,
+      title,
+      comment,
+      isApproved: true, // Auto-approved for frictionless user experience
+      verifiedPurchase: false,
+    },
+  });
+
+  // Recalculate average rating & review count for the product
+  const allReviews = await prisma.review.findMany({
+    where: { productId, isApproved: true },
+    select: { rating: true },
+  });
+
+  const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+  const count = allReviews.length;
+  const avg = count > 0 ? totalRating / count : 0.0;
+
+  const product = await prisma.product.update({
+    where: { id: productId },
+    data: {
+      averageRating: avg,
+      reviewCount: count,
+    },
+    select: { slug: true },
+  });
+
+  revalidatePath(`/products/${product.slug}`);
+  revalidatePath("/admin/reviews");
+}
+
+export async function toggleReviewApproval(formData: FormData) {
+  const reviewId = textValue(formData, "reviewId");
+  if (!reviewId) {
+    throw new Error("Review ID is required.");
+  }
+
+  const review = await prisma.review.findUnique({
+    where: { id: reviewId },
+  });
+
+  if (!review) {
+    throw new Error("Review not found.");
+  }
+
+  await prisma.review.update({
+    where: { id: reviewId },
+    data: {
+      isApproved: !review.isApproved,
+    },
+  });
+
+  // Recalculate the product ratings
+  const allReviews = await prisma.review.findMany({
+    where: { productId: review.productId, isApproved: true },
+    select: { rating: true },
+  });
+
+  const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+  const count = allReviews.length;
+  const avg = count > 0 ? totalRating / count : 0.0;
+
+  const product = await prisma.product.update({
+    where: { id: review.productId },
+    data: {
+      averageRating: avg,
+      reviewCount: count,
+    },
+    select: { slug: true },
+  });
+
+  revalidatePath(`/products/${product.slug}`);
+  revalidatePath("/admin/reviews");
+}
+
+export async function deleteReview(formData: FormData) {
+  const reviewId = textValue(formData, "reviewId");
+  if (!reviewId) {
+    throw new Error("Review ID is required.");
+  }
+
+  const review = await prisma.review.delete({
+    where: { id: reviewId },
+  });
+
+  // Recalculate the product ratings
+  const allReviews = await prisma.review.findMany({
+    where: { productId: review.productId, isApproved: true },
+    select: { rating: true },
+  });
+
+  const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+  const count = allReviews.length;
+  const avg = count > 0 ? totalRating / count : 0.0;
+
+  const product = await prisma.product.update({
+    where: { id: review.productId },
+    data: {
+      averageRating: avg,
+      reviewCount: count,
+    },
+    select: { slug: true },
+  });
+
+  revalidatePath(`/products/${product.slug}`);
+  revalidatePath("/admin/reviews");
+}
+
+export async function createSize(formData: FormData) {
+  const name = textValue(formData, "name");
+  const value = textValue(formData, "value");
+  const system = textValue(formData, "system") || "US";
+
+  if (!name || !value) {
+    throw new Error("Name and Value are required for creating a size.");
+  }
+
+  await prisma.size.create({
+    data: {
+      name,
+      value,
+      system,
+    },
+  });
+
+  revalidatePath("/admin/sizes");
+  revalidatePath("/admin/products");
+}
+
+export async function updateSize(formData: FormData) {
+  const sizeId = textValue(formData, "sizeId");
+  const name = textValue(formData, "name");
+  const value = textValue(formData, "value");
+  const system = textValue(formData, "system") || "US";
+
+  if (!sizeId || !name || !value) {
+    throw new Error("Size ID, Name, and Value are required for updating a size.");
+  }
+
+  await prisma.size.update({
+    where: { id: sizeId },
+    data: {
+      name,
+      value,
+      system,
+    },
+  });
+
+  revalidatePath("/admin/sizes");
+  revalidatePath("/admin/products");
+}
+
+export async function deleteSize(formData: FormData) {
+  const sizeId = textValue(formData, "sizeId");
+  if (!sizeId) {
+    throw new Error("Size ID is required.");
+  }
+
+  // Check if size is linked to any active product variants
+  const linkedVariantsCount = await prisma.productVariant.count({
+    where: { sizeId },
+  });
+
+  if (linkedVariantsCount > 0) {
+    throw new Error(`Cannot delete this size option because it is currently linked to ${linkedVariantsCount} product variant(s).`);
+  }
+
+  await prisma.size.delete({
+    where: { id: sizeId },
+  });
+
+  revalidatePath("/admin/sizes");
+  revalidatePath("/admin/products");
 }

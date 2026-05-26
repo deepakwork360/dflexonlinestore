@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 
 const MAX_PHOTOS = 10;
 
-export default function ProductPhotoInputs() {
+export default function ProductPhotoInputs({ activeColors = [] }: { activeColors?: string[] }) {
   const [filledFiles, setFilledFiles] = useState<boolean[]>(
     Array.from({ length: MAX_PHOTOS }, () => false),
   );
@@ -31,11 +31,11 @@ export default function ProductPhotoInputs() {
         </span>
         <div className="mt-2 grid gap-2">
           {Array.from({ length: visibleFileCount }, (_, index) => (
-            <label
+            <div
               key={index}
               className="grid gap-1 rounded-md border border-neutral-200 bg-neutral-50 p-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500"
             >
-              Photo {index + 1}{index === 0 ? " / Primary" : ""}
+              <span>Photo {index + 1}{index === 0 ? " / Primary" : ""}</span>
               <Input
                 name={`photo${index + 1}`}
                 type="file"
@@ -47,7 +47,19 @@ export default function ProductPhotoInputs() {
                   setFilledFiles(next);
                 }}
               />
-            </label>
+              <label className="mt-1 block text-[9px] font-bold uppercase tracking-wider text-neutral-450">
+                Bind Image to Specific Color
+                <select
+                  name={`newImageColor_${index}`}
+                  className="mt-1 w-full rounded border border-neutral-200 bg-white p-1 text-[10px]"
+                >
+                  <option value="">General (All Colors)</option>
+                  {activeColors.map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
           ))}
         </div>
       </div>
@@ -58,11 +70,11 @@ export default function ProductPhotoInputs() {
         </span>
         <div className="mt-2 grid gap-2">
           {Array.from({ length: visibleUrlCount }, (_, index) => (
-            <label
+            <div
               key={index}
               className="grid gap-1 rounded-md border border-neutral-200 bg-white p-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500"
             >
-              Image URL {index + 1}{index === 0 ? " / Primary fallback" : ""}
+              <span>Image URL {index + 1}{index === 0 ? " / Primary fallback" : ""}</span>
               <Input
                 name={`imageUrl${index + 1}`}
                 type="url"
@@ -75,7 +87,19 @@ export default function ProductPhotoInputs() {
                   setUrls(next);
                 }}
               />
-            </label>
+              <label className="mt-1 block text-[9px] font-bold uppercase tracking-wider text-neutral-450">
+                Bind Image to Specific Color
+                <select
+                  name={`newImageColor_${index}`}
+                  className="mt-1 w-full rounded border border-neutral-200 bg-white p-1 text-[10px]"
+                >
+                  <option value="">General (All Colors)</option>
+                  {activeColors.map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
           ))}
         </div>
       </div>

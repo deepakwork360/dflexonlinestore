@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { BarChart3, Boxes, PackageCheck, Settings, Tags } from "lucide-react";
+import { BarChart3, Boxes, PackageCheck, Settings, Tags, FolderTree, Ticket, MessageSquare, Ruler } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/products", label: "Products", icon: Boxes },
+  { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/brands", label: "Brands", icon: Tags },
+  { href: "/admin/sizes", label: "Sizes", icon: Ruler },
   { href: "/admin/orders", label: "Orders", icon: PackageCheck },
+  { href: "/admin/coupons", label: "Coupons", icon: Ticket },
+  { href: "/admin/reviews", label: "Reviews", icon: MessageSquare },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

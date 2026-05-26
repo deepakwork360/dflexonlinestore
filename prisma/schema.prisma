@@ -156,6 +156,11 @@ model Product {
   averageRating  Float         @default(0.0)
   reviewCount    Int           @default(0)
   
+  // Color Grouping for separate colorways as separate products
+  color          String?
+  colorHex       String?
+  colorGroup     String?
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -171,6 +176,7 @@ model Product {
   @@index([brandId])
   @@index([slug])
   @@index([gender])
+  @@index([colorGroup])
 }
 
 model ProductImage {
@@ -180,6 +186,7 @@ model ProductImage {
   altText   String?
   sortOrder Int      @default(0) // Higher value -> priority display
   isPrimary Boolean  @default(false)
+  color     String?  // Associated color name for color-specific rendering
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

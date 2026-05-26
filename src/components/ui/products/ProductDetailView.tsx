@@ -18,8 +18,18 @@ import {
   Sparkles,
   Camera,
   Maximize2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { createReview } from "@/app/admin/actions";
+
+interface ColorSibling {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
+  colorHex: string | null;
+}
 
 interface ProductDetailViewProps {
   product: {
@@ -33,9 +43,12 @@ interface ProductDetailViewProps {
     gender: "MEN" | "WOMEN" | "KIDS";
     averageRating: number;
     reviewCount: number;
+    color: string | null;
+    colorHex: string | null;
+    colorGroup: string | null;
     brand: { name: string; slug: string; logo: string | null } | null;
     category: { name: string; slug: string } | null;
-    images: Array<{ id: string; url: string; altText: string | null; isPrimary: boolean }>;
+    images: Array<{ id: string; url: string; altText: string | null; isPrimary: boolean; color?: string | null }>;
     variants: Array<{
       id: string;
       sizeId: string;
@@ -55,6 +68,7 @@ interface ProductDetailViewProps {
       verifiedPurchase: boolean;
       createdAt: string;
       user: { name: string | null; image: string | null };
+      images: string[];
     }>;
   };
   recommended: Array<{
@@ -66,9 +80,10 @@ interface ProductDetailViewProps {
     brand: { name: string } | null;
     images: Array<{ url: string }>;
   }>;
+  colorSiblings?: ColorSibling[];
 }
 
-export default function ProductDetailView({ product, recommended }: ProductDetailViewProps) {
+export default function ProductDetailView({ product, recommended, colorSiblings = [] }: ProductDetailViewProps) {
   // Extract all unique colors from variants
   const uniqueColors = useMemo(() => {
     const map = new Map<string, { name: string; hex: string | null }>();
@@ -82,13 +97,57 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
 
   // States
   const [selectedColor, setSelectedColor] = useState<string>(
-    uniqueColors[0]?.name || ""
+    product.color || uniqueColors[0]?.name || ""
   );
   const [selectedSizeId, setSelectedSizeId] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "specifications" | "shipping">("details");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Review states
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewEmail, setReviewEmail] = useState("");
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewEmail.trim()) {
+      toast.error("Name and email are required to submit a review.");
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      const data = new FormData();
+      data.append("productId", product.id);
+      data.append("name", reviewName);
+      data.append("email", reviewEmail);
+      data.append("rating", String(reviewRating));
+      data.append("title", reviewTitle);
+      data.append("comment", reviewComment);
+
+      await createReview(data);
+      toast.success("Thank you! Your review has been submitted and published successfully.");
+      
+      // Reset form
+      setReviewName("");
+      setReviewEmail("");
+      setReviewTitle("");
+      setReviewComment("");
+      setReviewRating(5);
+      setShowReviewForm(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit review.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   // Filter variants belonging to selected color
   const colorVariants = useMemo(() => {
@@ -100,12 +159,18 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
     return colorVariants.find((v) => v.sizeId === selectedSizeId);
   }, [colorVariants, selectedSizeId]);
 
-  // Gallery supports up to 10 real product photos.
+  // Gallery supports up to 10 real product photos, filtered by selected color.
   const galleryImages = useMemo(() => {
-    const primary = product.images.find((image) => image.isPrimary);
-    const rest = product.images.filter((image) => image.id !== primary?.id);
+    const colorSpecific = product.images.filter(
+      (image) => image.color && image.color.toLowerCase() === selectedColor.toLowerCase()
+    );
+    const general = product.images.filter((image) => !image.color);
+    const filteredList = colorSpecific.length > 0 ? [...colorSpecific, ...general] : product.images;
+
+    const primary = filteredList.find((image) => image.isPrimary) || filteredList[0];
+    const rest = filteredList.filter((image) => image.id !== primary?.id);
     return [...(primary ? [primary] : []), ...rest].slice(0, 10);
-  }, [product.images]);
+  }, [product.images, selectedColor]);
 
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0];
 
@@ -385,7 +450,36 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
           </div>
 
           {/* Color Box Selection (Besnard Swatch Style) */}
-          {uniqueColors.length > 0 && (
+          {colorSiblings.length > 0 ? (
+            <div className="space-y-2.5 mt-6 border-t border-neutral-100 pt-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block">
+                COLOR:
+              </span>
+              <div className="flex items-center gap-3">
+                {colorSiblings.map((sibling) => {
+                  const isCurrent = sibling.slug === product.slug;
+                  return (
+                    <button
+                      key={sibling.id}
+                      type="button"
+                      onClick={() => {
+                        if (!isCurrent) {
+                          router.push(`/products/${sibling.slug}`);
+                        }
+                      }}
+                      className={`relative h-6 w-6 rounded-none border transition-all duration-200 cursor-pointer ${
+                        isCurrent
+                          ? "border-black scale-110 ring-2 ring-neutral-100"
+                          : "border-neutral-250 hover:border-neutral-400"
+                      }`}
+                      style={{ backgroundColor: sibling.colorHex || "#cccccc" }}
+                      title={sibling.color || sibling.name}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : uniqueColors.length > 0 ? (
             <div className="space-y-2.5 mt-6 border-t border-neutral-100 pt-6">
               <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block">
                 COLOR:
@@ -394,6 +488,7 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
                 {uniqueColors.map((color) => (
                   <button
                     key={color.name}
+                    type="button"
                     onClick={() => {
                       setSelectedColor(color.name);
                       setSelectedSizeId(""); // Reset size choice on color change
@@ -409,7 +504,7 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* Size Select list (Besnard Style Guide layout) */}
           <div className="space-y-3 mt-6 border-t border-neutral-100 pt-6">
@@ -668,6 +763,12 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
             <h2 className="text-2xl font-light uppercase text-neutral-950 tracking-[0.08em] mt-1 font-sans">
               Customer Reviews
             </h2>
+            <button
+              onClick={() => setShowReviewForm(!showReviewForm)}
+              className="mt-3 inline-flex items-center gap-1.5 border border-neutral-300 bg-white hover:bg-neutral-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-800 transition"
+            >
+              {showReviewForm ? "Cancel Review" : "Write a Review"}
+            </button>
           </div>
 
           <div className="flex items-center gap-4">
@@ -696,6 +797,118 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
             </div>
           </div>
         </div>
+
+        {showReviewForm && (
+          <form
+            onSubmit={handleReviewSubmit}
+            className="mb-10 rounded-none border border-neutral-200 bg-neutral-50 p-6 space-y-6 max-w-xl shadow-sm"
+          >
+            <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+              <h3 className="text-xs font-black uppercase tracking-widest text-neutral-900">
+                Share Your Sizing & Comfort Feedback
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowReviewForm(false)}
+                className="text-neutral-450 hover:text-neutral-900 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Rating Stars Select */}
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-450">
+                Your Rating
+              </label>
+              <div className="flex items-center gap-1.5 text-amber-500">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const starVal = i + 1;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setReviewRating(starVal)}
+                      className="p-0.5 hover:scale-110 transition cursor-pointer"
+                    >
+                      <Star
+                        className={`h-6 w-6 stroke-[1.5] ${
+                          starVal <= reviewRating ? "fill-amber-500 text-amber-500" : "text-neutral-300"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Identity */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-450">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  placeholder="E.g. Alexander McQueen"
+                  className="w-full rounded-none border border-neutral-250 bg-white px-3 py-2 text-xs font-bold text-neutral-800 placeholder-neutral-300 focus:outline-none focus:border-black transition-colors"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-450">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={reviewEmail}
+                  onChange={(e) => setReviewEmail(e.target.value)}
+                  placeholder="E.g. alex@luxury.com"
+                  className="w-full rounded-none border border-neutral-250 bg-white px-3 py-2 text-xs font-bold text-neutral-800 placeholder-neutral-300 focus:outline-none focus:border-black transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Review Title */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-450">
+                Review Headline (Optional)
+              </label>
+              <input
+                type="text"
+                value={reviewTitle}
+                onChange={(e) => setReviewTitle(e.target.value)}
+                placeholder="E.g. Exceptional leather quality & comfort!"
+                className="w-full rounded-none border border-neutral-250 bg-white px-3 py-2 text-xs font-bold text-neutral-800 placeholder-neutral-300 focus:outline-none focus:border-black transition-colors"
+              />
+            </div>
+
+            {/* Review Comment */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-450">
+                Detailed Feedback (Optional)
+              </label>
+              <textarea
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="Share your experience regarding comfort, materials, fit and sizing..."
+                rows={4}
+                className="w-full rounded-none border border-neutral-250 bg-white px-3 py-2 text-xs font-medium text-neutral-800 placeholder-neutral-300 focus:outline-none focus:border-black transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmittingReview}
+              className="w-full rounded-none bg-black text-white hover:bg-neutral-800 py-3 text-xs font-extrabold uppercase tracking-widest transition disabled:opacity-50 cursor-pointer"
+            >
+              {isSubmittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+        )}
 
         {product.reviews.length === 0 ? (
           <div className="text-center py-16 bg-neutral-50 rounded-none border border-dashed border-neutral-200">
@@ -761,12 +974,54 @@ export default function ProductDetailView({ product, recommended }: ProductDetai
                   <p className="text-xs text-neutral-600 leading-relaxed font-medium">
                     {review.comment || "No comment details provided."}
                   </p>
+                  {review.images && review.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {review.images.map((imgUrl, imgIndex) => (
+                        <button
+                          key={imgIndex}
+                          type="button"
+                          onClick={() => setActiveLightboxImg(imgUrl)}
+                          className="relative h-16 w-16 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-xs hover:border-neutral-800 transition cursor-zoom-in"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Review image ${imgIndex + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </section>
+
+      {/* Luxury Lightbox Overlay Modal */}
+      {activeLightboxImg && (
+        <div
+          onClick={() => setActiveLightboxImg(null)}
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xs cursor-zoom-out animate-fade-in"
+        >
+          <button
+            onClick={() => setActiveLightboxImg(null)}
+            className="absolute top-6 right-6 text-white hover:text-neutral-300 transition p-2 cursor-pointer"
+            aria-label="Close photo preview"
+          >
+            <X className="h-7 w-7" />
+          </button>
+          <div className="relative max-h-[85vh] max-w-[90vw] overflow-hidden">
+            <img
+              src={activeLightboxImg}
+              alt="Review photo full preview"
+              className="max-h-[85vh] max-w-[90vw] object-contain select-none shadow-2xl rounded"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

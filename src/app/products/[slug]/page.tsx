@@ -68,13 +68,36 @@ export default async function ProductDetailPage({ params }: Props) {
     take: 4,
   });
 
+  // Fetch up to 10 products sharing the same colorGroup to present as colorways siblings
+  let colorSiblings: any[] = [];
+  if (product.colorGroup) {
+    colorSiblings = await prisma.product.findMany({
+      where: {
+        colorGroup: product.colorGroup,
+        status: "PUBLISHED",
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        color: true,
+        colorHex: true,
+      },
+    });
+  }
+
   // Serialize Prisma Decimals and Dates to plain serializable JSON primitives
   const serializedProduct = JSON.parse(JSON.stringify(product));
   const serializedRecommended = JSON.parse(JSON.stringify(recommended));
+  const serializedSiblings = JSON.parse(JSON.stringify(colorSiblings));
 
   return (
     <main className="min-h-screen bg-white text-neutral-950 pb-20">
-      <ProductDetailView product={serializedProduct} recommended={serializedRecommended} />
+      <ProductDetailView
+        product={serializedProduct}
+        recommended={serializedRecommended}
+        colorSiblings={serializedSiblings}
+      />
     </main>
   );
 }

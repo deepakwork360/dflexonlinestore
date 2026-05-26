@@ -145,8 +145,8 @@ export default async function GenderCollectionPage({ params }: Props) {
           </Link>
         </div>
 
-        {/* Responsive Grid matching request: Exactly 6 in a row on lg, 3 on md, 1 on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 sm:gap-x-5">
+        {/* Responsive Grid matching request: Exactly 2 columns on mobile (showing 4 products), 3 on md, 6 on lg */}
+        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
           {newCollectionProducts.map((product: any, idx: number) => {
             const primaryImg = product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url;
             const secondaryImg = product.images.find((img: any) => !img.isPrimary)?.url;
@@ -159,19 +159,19 @@ export default async function GenderCollectionPage({ params }: Props) {
                 )
               : 0;
 
-            // Visibility classes: Exactly 1 on mobile, 6 on sm and up
+            // Visibility classes: Exactly 4 products on mobile/tablet (2 rows of 2 in 2-column layout), 6 products on md and up
             let visibilityClass = "block";
-            if (idx >= 1 && idx <= 5) {
-              visibilityClass = "hidden sm:block";
+            if (idx >= 4 && idx <= 5) {
+              visibilityClass = "hidden md:block";
             } else if (idx >= 6) {
               visibilityClass = "hidden";
             }
 
             return (
-              <div key={product.id} className={`group relative flex flex-col ${visibilityClass}`}>
-                <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-850">
+              <div key={product.id} className={`group relative flex flex-col transition-all duration-300 hover:-translate-y-1.5 ${visibilityClass}`}>
+                <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800 transition-all duration-500 group-hover:border-neutral-300 dark:group-hover:border-neutral-700 group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.06)] dark:group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
                   {hasDiscount && (
-                    <span className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
+                    <span className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-0.5 text-[9px] font-extrabold text-white uppercase tracking-wider shadow-sm">
                       <Tag className="h-3 w-3" />
                       {discountPercent}% OFF
                     </span>
@@ -181,7 +181,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                       src={primaryImg}
                       alt={product.name}
                       fill
-                      sizes="(max-w-768px) 100vw, (max-w-1024px) 33vw, 25vw"
+                      sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
                       className="object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
                       priority={false}
                     />
@@ -190,35 +190,41 @@ export default async function GenderCollectionPage({ params }: Props) {
                         src={secondaryImg}
                         alt={`${product.name} alternate view`}
                         fill
-                        sizes="(max-w-768px) 100vw, (max-w-1024px) 33vw, 25vw"
+                        sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
                         className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105"
                       />
                     )}
+                    {/* Premium Hover Overlay Action */}
+                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                      <span className="bg-white/95 dark:bg-neutral-950/95 backdrop-blur-sm text-neutral-900 dark:text-white text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out hidden md:inline-block">
+                        Quick View
+                      </span>
+                    </div>
                   </Link>
                 </div>
-                <div className="mt-4 flex flex-col flex-1">
+                <div className="mt-3.5 flex flex-col flex-1 px-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">
+                    <span className="text-[9px] font-extrabold tracking-[0.15em] text-neutral-400 dark:text-neutral-500 uppercase">
                       {product.brand?.name || "Premium Brand"}
                     </span>
-                    <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500">
-                      ⭐ {product.averageRating.toFixed(1)}
+                    <span className="text-[9px] font-bold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded-full">
+                      ★ {product.averageRating.toFixed(1)}
                     </span>
                   </div>
-                  <h3 className="mt-1 text-sm font-bold tracking-tight text-neutral-900 dark:text-white line-clamp-1">
+                  <h3 className="mt-1 text-sm font-extrabold tracking-tight text-neutral-900 dark:text-white line-clamp-1 group-hover:text-rose-600 dark:group-hover:text-rose-500 transition-colors">
                     <Link href={`/products/${product.slug}`} className="hover:underline">
                       {product.name}
                     </Link>
                   </h3>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1">
+                  <p className="mt-0.5 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 line-clamp-1">
                     {product.category?.name || "Sneaker"}
                   </p>
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-sm font-extrabold text-neutral-900 dark:text-white">
+                  <div className="mt-2.5 flex items-baseline gap-2">
+                    <span className="text-sm font-black text-neutral-900 dark:text-white font-sans">
                       ${Number(product.price).toFixed(2)}
                     </span>
                     {hasDiscount && (
-                      <span className="text-xs text-neutral-400 line-through">
+                      <span className="text-xs text-neutral-400 dark:text-neutral-500 line-through">
                         ${Number(product.compareAtPrice).toFixed(2)}
                       </span>
                     )}
@@ -244,11 +250,14 @@ export default async function GenderCollectionPage({ params }: Props) {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:h-[640px]">
           {/* Left Column: Stacked 2 Cards */}
           <div className="w-full lg:w-[42%] flex flex-col gap-6 lg:h-full">
-            {/* 1. Retro Athletics Card */}
-            <div className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
+            {/* 1. Basketball Card */}
+            <Link
+              href={`/collections/shoes?gender=${genderKey}&category=basketball`}
+              className="flex-1 relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
+            >
               <Image
-                src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=600&auto=format&fit=crop"
-                alt="Retro Athletics Collection"
+                src="https://i.pinimg.com/1200x/59/ec/49/59ec49e0a6e458ddc23d5f219d242ce6.jpg"
+                alt="Basketball Collection"
                 fill
                 sizes="(max-w-1024px) 100vw, 40vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-75 group-hover:opacity-60"
@@ -257,30 +266,30 @@ export default async function GenderCollectionPage({ params }: Props) {
               
               <div className="absolute inset-0 p-8 flex flex-col justify-end text-left space-y-2">
                 <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em]">
-                  Heritage Style
+                  Court Performance
                 </span>
-                <h3 className="text-2xl font-black uppercase text-white tracking-wider font-sans">
-                  Retro Athletics
+                <h3 className="text-2xl font-black uppercase text-white tracking-wider font-sans group-hover:text-rose-400 transition-colors">
+                  Basketball
                 </h3>
                 <p className="text-xs text-neutral-300 font-medium leading-relaxed max-w-sm">
-                  Reimagined classics styled for modern urban streets.
+                  High-top court shoes optimized for maximum grip and performance.
                 </p>
                 <div className="pt-2">
-                  <Link
-                    href={`/collections/shoes?gender=${genderKey}`}
-                    className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 hover:text-rose-400 transition-colors"
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 group-hover:text-rose-400 transition-colors">
                     Explore &rarr;
-                  </Link>
+                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
 
-            {/* 2. Minimalist Comfort Card */}
-            <div className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px]">
+            {/* 2. Lifestyle Card */}
+            <Link
+              href={`/collections/shoes?gender=${genderKey}&category=lifestyle`}
+              className="flex-1 relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
+            >
               <Image
-                src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600"
-                alt="Minimalist Comfort Collection"
+                src="https://i.pinimg.com/1200x/18/d3/88/18d3880e3fb4006876f1e5268517ce15.jpg"
+                alt="Lifestyle Collection"
                 fill
                 sizes="(max-w-1024px) 100vw, 40vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-75 group-hover:opacity-60"
@@ -289,31 +298,31 @@ export default async function GenderCollectionPage({ params }: Props) {
               
               <div className="absolute inset-0 p-8 flex flex-col justify-end text-left space-y-2">
                 <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em]">
-                  Daily Luxury
+                  Everyday Curation
                 </span>
-                <h3 className="text-2xl font-black uppercase text-white tracking-wider font-sans">
-                  Minimalist Comfort
+                <h3 className="text-2xl font-black uppercase text-white tracking-wider font-sans group-hover:text-rose-400 transition-colors">
+                  Lifestyle
                 </h3>
                 <p className="text-xs text-neutral-300 font-medium leading-relaxed max-w-sm">
-                  Monochromatic luxury and premium leather finishes.
+                  Casual streetwear builds designed for everyday comfort and clean looks.
                 </p>
                 <div className="pt-2">
-                  <Link
-                    href={`/collections/shoes?gender=${genderKey}`}
-                    className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 hover:text-rose-400 transition-colors"
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 group-hover:text-rose-400 transition-colors">
                     Explore &rarr;
-                  </Link>
+                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
 
-          {/* Right Column: One Large Editorial Card */}
-          <div className="w-full lg:w-[58%] relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full">
+          {/* Right Column: One Large Editorial Card for Running */}
+          <Link
+            href={`/collections/shoes?gender=${genderKey}&category=running`}
+            className="w-full lg:w-[58%] relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full block"
+          >
             <Image
-              src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200"
-              alt="Performance Tech Collection"
+              src="https://i.pinimg.com/1200x/cd/68/aa/cd68aa257b0310cc65237e3e3b5b1a27.jpg"
+              alt="Running Collection"
               fill
               sizes="(max-w-1024px) 100vw, 60vw"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-70 group-hover:opacity-55"
@@ -327,22 +336,19 @@ export default async function GenderCollectionPage({ params }: Props) {
                   ⚡ High-Performance
                 </span>
                 <h3 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase text-white tracking-tight leading-none font-sans pt-2">
-                  Performance Tech
+                  Running
                 </h3>
               </div>
               <p className="text-xs sm:text-sm text-neutral-300 font-medium leading-relaxed max-w-lg">
-                Engineered for high-intensity movement and superior everyday comfort. Featuring ultra-breathable mesh fabrics, precision support cages, and responsive flight soles that push limits.
+                Engineered for high-intensity running and superior everyday speed. Featuring ultra-breathable mesh fabrics, advanced sole mechanics, and responsive premium cushions.
               </p>
               <div className="pt-2">
-                <Link
-                  href={`/collections/shoes?gender=${genderKey}`}
-                  className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-neutral-100 hover:scale-105 active:scale-95"
-                >
+                <span className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all group-hover:bg-neutral-100 group-hover:scale-105 active:scale-95">
                   Explore Collection &rarr;
-                </Link>
+                </span>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 
