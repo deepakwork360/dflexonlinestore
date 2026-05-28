@@ -113,12 +113,20 @@ async function uniqueProductSlug(name: string, excludedProductId?: string) {
   return slug;
 }
 
-async function uniqueBrandSlug(name: string) {
+async function uniqueBrandSlug(name: string, excludedBrandId?: string) {
   const baseSlug = slugify(name);
   let slug = baseSlug;
   let counter = 2;
 
-  while (await prisma.brand.findUnique({ where: { slug }, select: { id: true } })) {
+  while (
+    await prisma.brand.findFirst({
+      where: {
+        slug,
+        ...(excludedBrandId ? { id: { not: excludedBrandId } } : {}),
+      },
+      select: { id: true },
+    })
+  ) {
     slug = `${baseSlug}-${counter}`;
     counter += 1;
   }
@@ -247,15 +255,6 @@ export async function updateProduct(formData: FormData) {
       },
     });
 
-    // Update existing images color fields
-    for (const image of remainingImages) {
-      const colorVal = optionalTextValue(formData, `imageColor_${image.id}`);
-      await tx.productImage.update({
-        where: { id: image.id },
-        data: { color: colorVal },
-      });
-    }
-
     if (removeImageIds.length > 0) {
       await tx.productImage.deleteMany({
         where: {
@@ -268,7 +267,6 @@ export async function updateProduct(formData: FormData) {
     if (newImageUrls.length > 0) {
       for (let index = 0; index < newImageUrls.length; index++) {
         const url = newImageUrls[index];
-        const colorVal = optionalTextValue(formData, `newImageColor_${index}`);
         await tx.productImage.create({
           data: {
             productId,
@@ -276,7 +274,6 @@ export async function updateProduct(formData: FormData) {
             altText: `${name} product image`,
             isPrimary: false,
             sortOrder: remainingImages.length + index + 1,
-            color: colorVal,
           },
         });
       }
@@ -372,6 +369,81 @@ export async function createBrand(formData: FormData) {
   revalidatePath("/women");
   revalidatePath("/kids");
   revalidatePath("/collections/shoes");
+}
+
+export async function updateBrand(formData: FormData) {
+  const brandId = textValue(formData, "brandId");
+  const name = textValue(formData, "name");
+  const description = optionalTextValue(formData, "description");
+  const currentLogo = optionalTextValue(formData, "currentLogo");
+  const logo = (await uploadedBrandLogoValue(formData)) || optionalTextValue(formData, "logo") || currentLogo;
+
+  if (!brandId || !name) {
+    throw new Error("Brand and brand name are required.");
+  }
+
+  const existingBrand = await prisma.brand.findUnique({
+    where: { id: brandId },
+    select: { slug: true },
+  });
+
+  if (!existingBrand) {
+    throw new Error("Brand not found.");
+  }
+
+  const slug = await uniqueBrandSlug(name, brandId);
+
+  await prisma.brand.update({
+    where: { id: brandId },
+    data: {
+      name,
+      slug,
+      description,
+      logo,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/brands");
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
+  revalidatePath("/collections/shoes");
+  revalidatePath(`/collections/shoes?brand=${existingBrand.slug}`);
+  revalidatePath(`/collections/shoes?brand=${slug}`);
+}
+
+export async function deleteBrand(formData: FormData) {
+  const brandId = textValue(formData, "brandId");
+
+  if (!brandId) {
+    throw new Error("Brand is required.");
+  }
+
+  const brand = await prisma.brand.findUnique({
+    where: { id: brandId },
+    select: { slug: true },
+  });
+
+  if (!brand) {
+    throw new Error("Brand not found.");
+  }
+
+  await prisma.brand.delete({
+    where: { id: brandId },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/brands");
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
+  revalidatePath("/collections/shoes");
+  revalidatePath(`/collections/shoes?brand=${brand.slug}`);
 }
 
 export async function updateProductStatus(formData: FormData) {
@@ -513,6 +585,34 @@ export async function updateVariantDetails(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/products");
   revalidatePath(`/admin/products/${productId}/edit`);
+}
+
+export async function deleteVariant(formData: FormData) {
+  const variantId = textValue(formData, "variantId");
+  const productId = textValue(formData, "productId");
+
+  if (!variantId || !productId) {
+    throw new Error("Variant and product are required.");
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { slug: true },
+  });
+
+  if (!product) {
+    throw new Error("Product not found.");
+  }
+
+  await prisma.productVariant.delete({
+    where: { id: variantId },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/products");
+  revalidatePath(`/admin/products/${productId}/edit`);
+  revalidatePath(`/products/${product.slug}`);
+  revalidatePath("/collections/shoes");
 }
 
 export async function updateOrderStatus(formData: FormData) {
