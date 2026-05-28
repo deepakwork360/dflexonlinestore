@@ -475,7 +475,12 @@ export async function createVariant(formData: FormData) {
     price: variant.price?.toString() ?? null,
     compareAtPrice: variant.compareAtPrice?.toString() ?? null,
     stock: variant.stock,
-    size: variant.size,
+    size: {
+      id: variant.size.id,
+      name: variant.size.name,
+      value: variant.size.value,
+      system: variant.size.system,
+    },
   };
 }
 
