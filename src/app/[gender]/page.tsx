@@ -196,9 +196,9 @@ export default async function GenderCollectionPage({ params }: Props) {
                     )}
                     {/* Premium Hover Overlay Action */}
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className="bg-white/95 dark:bg-neutral-950/95 backdrop-blur-sm text-neutral-900 dark:text-white text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out hidden md:inline-block">
+                      {/* <span className="bg-white/95 dark:bg-neutral-950/95 backdrop-blur-sm text-neutral-900 dark:text-white text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out hidden md:inline-block">
                         Quick View
-                      </span>
+                      </span> */}
                     </div>
                   </Link>
                 </div>
