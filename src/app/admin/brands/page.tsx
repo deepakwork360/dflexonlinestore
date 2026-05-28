@@ -34,7 +34,7 @@ export default async function AdminBrandsPage() {
             <h2 className="text-lg font-black uppercase tracking-tight">Add Brand</h2>
           </div>
 
-          <form action={createBrand} className="space-y-4">
+          <form action={createBrand} encType="multipart/form-data" className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
               Brand Name
               <Input name="name" required className="mt-1" placeholder="Nike" />

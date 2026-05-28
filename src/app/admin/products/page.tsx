@@ -38,7 +38,7 @@ export default async function AdminProductsPage() {
             <Plus className="h-4 w-4 text-rose-600" />
             <h2 className="text-lg font-black uppercase tracking-tight">Add Product</h2>
           </div>
-          <form action={createProduct} className="space-y-4">
+          <form action={createProduct} encType="multipart/form-data" className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
               Name
               <Input name="name" required className="mt-1" placeholder="Nike Dunk Low Panda" />

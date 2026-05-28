@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Ruler, Plus, Edit3, Trash2, X, Save } from "lucide-react";
 import { toast } from "sonner";
 import { createSize, updateSize, deleteSize } from "../actions";
@@ -17,7 +18,12 @@ interface SizeItem {
 
 const SYSTEMS = ["ALL", "US", "EU", "UK", "CM"];
 
-export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+export default function SizesClient({ initialSizes }: { initialSizes: SizeItem[] }) {
+  const router = useRouter();
   const [sizes, setSizes] = useState<SizeItem[]>(initialSizes);
   const [activeSystemTab, setActiveSystemTab] = useState<string>("ALL");
   const [editingSize, setEditingSize] = useState<SizeItem | null>(null);
@@ -47,18 +53,14 @@ export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
     data.append("system", newSystem);
 
     try {
-      await createSize(data);
+      const createdSize = await createSize(data);
       toast.success("Size created successfully!");
-      // Fresh mock add or reload
-      const tempId = `temp-${Date.now()}`;
-      setSizes((prev) => [
-        ...prev,
-        { id: tempId, name: newName, value: newValue, system: newSystem, _count: { variants: 0 } },
-      ]);
+      setSizes((prev) => [...prev, createdSize]);
       setNewName("");
       setNewValue("");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create size.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to create size."));
     } finally {
       setIsSubmitting(false);
     }
@@ -87,18 +89,19 @@ export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
     data.append("system", editSystem);
 
     try {
-      await updateSize(data);
+      const updatedSize = await updateSize(data);
       toast.success("Size updated successfully!");
       setSizes((prev) =>
         prev.map((s) =>
           s.id === editingSize.id
-            ? { ...s, name: editName, value: editValue, system: editSystem }
+            ? { ...s, ...updatedSize }
             : s
         )
       );
       setEditingSize(null);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update size.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to update size."));
     }
   };
 
@@ -122,8 +125,9 @@ export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
     try {
       await deleteSize(data);
       toast.success("Size deleted successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to delete size.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to delete size."));
       setSizes(previousSizes);
     }
   };
@@ -167,7 +171,7 @@ export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
 
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                Display Name (E.g. "US 10")
+                Display Name (E.g. &quot;US 10&quot;)
               </label>
               <input
                 type="text"
@@ -181,7 +185,7 @@ export default function SizesClient({ initialSizes }: { initialSizes: any[] }) {
 
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                Size Value (E.g. "10")
+                Size Value (E.g. &quot;10&quot;)
               </label>
               <input
                 type="text"

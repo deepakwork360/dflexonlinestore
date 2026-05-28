@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FolderTree, Plus, Save, Trash2, Edit2, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { createCategory, updateCategory, deleteCategory } from "../actions";
@@ -22,6 +23,7 @@ export default function CategoriesClient({
 }: {
   categories: CategoryWithRelation[];
 }) {
+  const router = useRouter();
   const [editingCategory, setEditingCategory] = useState<CategoryWithRelation | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -84,6 +86,7 @@ export default function CategoriesClient({
                 await createCategory(formData);
                 cancelEdit();
               }
+              router.refresh();
             }}
             className="space-y-4"
           >
@@ -167,7 +170,6 @@ export default function CategoriesClient({
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {categories.map((brand) => {
-                const cover = brand.image || "/uploads/products/placeholder.jpg";
                 return (
                   <article
                     key={brand.id}
@@ -223,7 +225,10 @@ export default function CategoriesClient({
                           <Edit2 className="h-3.5 w-3.5" />
                         </button>
                         <form
-                          action={deleteCategory}
+                          action={async (formData) => {
+                            await deleteCategory(formData);
+                            router.refresh();
+                          }}
                           onSubmit={(e) => {
                             if (!confirm("Are you sure you want to delete this category?")) {
                               e.preventDefault();

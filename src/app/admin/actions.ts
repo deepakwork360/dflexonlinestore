@@ -179,6 +179,7 @@ export async function createProduct(formData: FormData) {
   revalidatePath("/admin/products");
   revalidatePath(`/products/${product.slug}`);
   revalidatePath("/collections/shoes");
+  redirect(`/admin/products/${product.id}/edit`);
 }
 
 export async function updateProduct(formData: FormData) {
@@ -445,7 +446,7 @@ export async function createVariant(formData: FormData) {
     throw new Error("Product not found.");
   }
 
-  await prisma.productVariant.create({
+  const variant = await prisma.productVariant.create({
     data: {
       productId,
       sizeId,
@@ -456,6 +457,7 @@ export async function createVariant(formData: FormData) {
       compareAtPrice: compareAtPrice ? new Prisma.Decimal(compareAtPrice) : null,
       stock,
     },
+    include: { size: true },
   });
 
   revalidatePath("/admin");
@@ -463,6 +465,18 @@ export async function createVariant(formData: FormData) {
   revalidatePath(`/admin/products/${productId}/edit`);
   revalidatePath(`/products/${product.slug}`);
   revalidatePath("/collections/shoes");
+
+  return {
+    id: variant.id,
+    sizeId: variant.sizeId,
+    color: variant.color,
+    colorHex: variant.colorHex,
+    sku: variant.sku,
+    price: variant.price?.toString() ?? null,
+    compareAtPrice: variant.compareAtPrice?.toString() ?? null,
+    stock: variant.stock,
+    size: variant.size,
+  };
 }
 
 export async function updateVariantDetails(formData: FormData) {
@@ -934,7 +948,7 @@ export async function createSize(formData: FormData) {
     throw new Error("Name and Value are required for creating a size.");
   }
 
-  await prisma.size.create({
+  const size = await prisma.size.create({
     data: {
       name,
       value,
@@ -944,6 +958,14 @@ export async function createSize(formData: FormData) {
 
   revalidatePath("/admin/sizes");
   revalidatePath("/admin/products");
+
+  return {
+    id: size.id,
+    name: size.name,
+    value: size.value,
+    system: size.system,
+    _count: { variants: 0 },
+  };
 }
 
 export async function updateSize(formData: FormData) {
@@ -956,7 +978,7 @@ export async function updateSize(formData: FormData) {
     throw new Error("Size ID, Name, and Value are required for updating a size.");
   }
 
-  await prisma.size.update({
+  const size = await prisma.size.update({
     where: { id: sizeId },
     data: {
       name,
@@ -967,6 +989,13 @@ export async function updateSize(formData: FormData) {
 
   revalidatePath("/admin/sizes");
   revalidatePath("/admin/products");
+
+  return {
+    id: size.id,
+    name: size.name,
+    value: size.value,
+    system: size.system,
+  };
 }
 
 export async function deleteSize(formData: FormData) {

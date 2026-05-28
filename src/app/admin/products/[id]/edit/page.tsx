@@ -73,7 +73,7 @@ export default async function AdminEditProductPage({ params }: Props) {
       <section className="grid gap-6 xl:grid-cols-[520px_1fr]">
         
         {/* Product Details Form */}
-        <form action={updateProduct} className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-sm h-fit">
+        <form action={updateProduct} encType="multipart/form-data" className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-sm h-fit">
           <input type="hidden" name="productId" value={product.id} />
 
           <div className="grid gap-4 md:grid-cols-2">

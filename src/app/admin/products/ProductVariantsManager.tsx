@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Save, Sparkles, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, Save, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { createVariant, updateVariantDetails } from "@/app/admin/actions";
@@ -13,14 +14,16 @@ interface Size {
   system: string;
 }
 
+type MoneyValue = { toString(): string } | string | number | null;
+
 interface Variant {
   id: string;
   sizeId: string;
   color: string;
   colorHex: string | null;
   sku: string;
-  price: any | null;
-  compareAtPrice: any | null;
+  price: MoneyValue;
+  compareAtPrice: MoneyValue;
   stock: number;
   size: Size;
 }
@@ -28,11 +31,16 @@ interface Variant {
 interface Props {
   productId: string;
   productName: string;
-  initialVariants: any[];
+  initialVariants: Variant[];
   sizes: Size[];
 }
 
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export default function ProductVariantsManager({ productId, productName, initialVariants, sizes }: Props) {
+  const router = useRouter();
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
 
   // New variant form states
@@ -106,19 +114,27 @@ export default function ProductVariantsManager({ productId, productName, initial
     data.append("compareAtPrice", compareAtPrice);
 
     try {
-      await createVariant(data);
+      const createdVariant = await createVariant(data);
       toast.success("Variant created successfully!");
-      
-      // Let's reload to sync fresh schema context
-      window.location.reload();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add variant.");
+      setVariants((prev) => [...prev, createdVariant]);
+      setSelectedSizeId("");
+      setNewSizeName("");
+      setNewSizeValue("");
+      setSku("");
+      setStock(0);
+      setColor("");
+      setColorHex("");
+      setPrice("");
+      setCompareAtPrice("");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to add variant."));
     } finally {
       setIsSubmittingNew(false);
     }
   };
 
-  const handleUpdateVariantSubmit = async (e: React.FormEvent, variantId: string) => {
+  const handleUpdateVariantSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
@@ -126,8 +142,9 @@ export default function ProductVariantsManager({ productId, productName, initial
     try {
       await updateVariantDetails(formData);
       toast.success("Variant details updated successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update variant details.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to update variant details."));
     }
   };
 
@@ -306,11 +323,11 @@ export default function ProductVariantsManager({ productId, productName, initial
           </div>
         ) : (
           variants.map((variant) => {
-            const decVal = (v: any) => (v === null || v === undefined ? "" : Number(v).toFixed(2));
+            const decVal = (v: MoneyValue) => (v === null || v === undefined ? "" : Number(v).toFixed(2));
             return (
               <form
                 key={variant.id}
-                onSubmit={(e) => handleUpdateVariantSubmit(e, variant.id)}
+                onSubmit={handleUpdateVariantSubmit}
                 className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm hover:shadow-xs transition"
               >
                 <input type="hidden" name="variantId" value={variant.id} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Ticket, Plus, Save, Trash2, Edit2, X, Calendar, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { createCoupon, updateCoupon, deleteCoupon } from "../actions";
@@ -9,9 +10,9 @@ interface CouponWithRelation {
   id: string;
   code: string;
   discountType: "PERCENTAGE" | "FIXED";
-  discountValue: any; // Decimal type from Prisma
-  minOrderValue: any;
-  maxDiscount: any;
+  discountValue: { toString(): string } | string | number;
+  minOrderValue: { toString(): string } | string | number | null;
+  maxDiscount: { toString(): string } | string | number | null;
   startDate: Date;
   endDate: Date;
   usageLimit: number | null;
@@ -24,6 +25,7 @@ export default function CouponsClient({
 }: {
   coupons: CouponWithRelation[];
 }) {
+  const router = useRouter();
   const [editingCoupon, setEditingCoupon] = useState<CouponWithRelation | null>(null);
   const [code, setCode] = useState("");
   const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
@@ -101,6 +103,7 @@ export default function CouponsClient({
                 await createCoupon(formData);
                 cancelEdit();
               }
+              router.refresh();
             }}
             className="space-y-4"
           >
@@ -126,7 +129,7 @@ export default function CouponsClient({
                 <select
                   name="discountType"
                   value={discountType}
-                  onChange={(e) => setDiscountType(e.target.value as any)}
+                  onChange={(e) => setDiscountType(e.target.value as "PERCENTAGE" | "FIXED")}
                   className="mt-1 block w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-xs outline-none focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950"
                 >
                   <option value="PERCENTAGE">Percentage (%)</option>
@@ -323,7 +326,10 @@ export default function CouponsClient({
                               <Edit2 className="h-3.5 w-3.5" />
                             </button>
                             <form
-                              action={deleteCoupon}
+                              action={async (formData) => {
+                                await deleteCoupon(formData);
+                                router.refresh();
+                              }}
                               onSubmit={(e) => {
                                 if (!confirm("Are you sure you want to delete this coupon?")) {
                                   e.preventDefault();
