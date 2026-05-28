@@ -382,7 +382,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 alt={`${brand.name} collection`}
                 fill
                 sizes="(max-w-768px) 50vw, 20vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-70 group-hover:opacity-50"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
               />
               
               {/* Gradient Overlay */}
