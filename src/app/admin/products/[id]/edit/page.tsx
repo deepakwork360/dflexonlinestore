@@ -43,6 +43,28 @@ export default async function AdminEditProductPage({ params }: Props) {
 
   // Extract all unique colors from existing variants
   const activeColors = Array.from(new Set(product.variants.map((v) => v.color).filter(Boolean)));
+  const variants = product.variants.map((variant) => ({
+    id: variant.id,
+    sizeId: variant.sizeId,
+    color: variant.color,
+    colorHex: variant.colorHex,
+    sku: variant.sku,
+    price: variant.price?.toString() ?? null,
+    compareAtPrice: variant.compareAtPrice?.toString() ?? null,
+    stock: variant.stock,
+    size: {
+      id: variant.size.id,
+      name: variant.size.name,
+      value: variant.size.value,
+      system: variant.size.system,
+    },
+  }));
+  const sizeOptions = sizes.map((size) => ({
+    id: size.id,
+    name: size.name,
+    value: size.value,
+    system: size.system,
+  }));
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
@@ -241,8 +263,8 @@ export default async function AdminEditProductPage({ params }: Props) {
             <ProductVariantsManager
               productId={product.id}
               productName={product.name}
-              initialVariants={product.variants}
-              sizes={sizes}
+              initialVariants={variants}
+              sizes={sizeOptions}
             />
           </div>
         </div>
