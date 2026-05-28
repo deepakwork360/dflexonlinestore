@@ -161,7 +161,7 @@ export default async function GenderCollectionPage({ params }: Props) {
 
             // Visibility classes: Exactly 4 products on mobile/tablet (2 rows of 2 in 2-column layout), 6 products on md and up
             let visibilityClass = "block";
-            if (idx >= 4 && idx <= 5) {
+            if (idx >= 6 && idx <= 5) {
               visibilityClass = "hidden md:block";
             } else if (idx >= 6) {
               visibilityClass = "hidden";
