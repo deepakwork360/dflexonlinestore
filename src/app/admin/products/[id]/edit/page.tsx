@@ -41,8 +41,6 @@ export default async function AdminEditProductPage({ params }: Props) {
     notFound();
   }
 
-  // Extract all unique colors from existing variants
-  const activeColors = Array.from(new Set(product.variants.map((v) => v.color).filter(Boolean)));
   const variants = product.variants.map((variant) => ({
     id: variant.id,
     sizeId: variant.sizeId,
@@ -215,21 +213,6 @@ export default async function AdminEditProductPage({ params }: Props) {
                     </label>
                   </div>
 
-                  <label className="mt-2 block text-[9px] font-bold uppercase tracking-wider text-neutral-500">
-                    Color Tag
-                    <select
-                      name={`imageColor_${image.id}`}
-                      defaultValue={image.color || ""}
-                      className="mt-1 w-full rounded border border-neutral-200 bg-white p-1 text-[10px] font-semibold text-neutral-800"
-                    >
-                      <option value="">All Colors (General)</option>
-                      {activeColors.map((color) => (
-                        <option key={color} value={color}>
-                          {color}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
                 </div>
               ))}
             </div>
@@ -240,7 +223,7 @@ export default async function AdminEditProductPage({ params }: Props) {
               Add More Photos
             </h3>
             <div className="mt-3">
-              <ProductPhotoInputs activeColors={activeColors} />
+              <ProductPhotoInputs />
             </div>
           </div>
 

@@ -142,8 +142,8 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
       setReviewComment("");
       setReviewRating(5);
       setShowReviewForm(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to submit review.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit review.");
     } finally {
       setIsSubmittingReview(false);
     }
@@ -159,18 +159,12 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
     return colorVariants.find((v) => v.sizeId === selectedSizeId);
   }, [colorVariants, selectedSizeId]);
 
-  // Gallery supports up to 10 real product photos, filtered by selected color.
+  // Gallery supports up to 10 real product photos and is not filtered by variant color.
   const galleryImages = useMemo(() => {
-    const colorSpecific = product.images.filter(
-      (image) => image.color && image.color.toLowerCase() === selectedColor.toLowerCase()
-    );
-    const general = product.images.filter((image) => !image.color);
-    const filteredList = colorSpecific.length > 0 ? [...colorSpecific, ...general] : product.images;
-
-    const primary = filteredList.find((image) => image.isPrimary) || filteredList[0];
-    const rest = filteredList.filter((image) => image.id !== primary?.id);
+    const primary = product.images.find((image) => image.isPrimary) || product.images[0];
+    const rest = product.images.filter((image) => image.id !== primary?.id);
     return [...(primary ? [primary] : []), ...rest].slice(0, 10);
-  }, [product.images, selectedColor]);
+  }, [product.images]);
 
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0];
 

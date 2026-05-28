@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Save, Sparkles } from "lucide-react";
+import { Plus, Save, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { createVariant, updateVariantDetails } from "@/app/admin/actions";
+import { createVariant, deleteVariant, updateVariantDetails } from "@/app/admin/actions";
 
 interface Size {
   id: string;
@@ -145,6 +145,28 @@ export default function ProductVariantsManager({ productId, productName, initial
       router.refresh();
     } catch (err: unknown) {
       toast.error(errorMessage(err, "Failed to update variant details."));
+    }
+  };
+
+  const handleDeleteVariant = async (variant: Variant) => {
+    if (!confirm(`Delete variant ${variant.size.name} / ${variant.color}?`)) {
+      return;
+    }
+
+    const previousVariants = variants;
+    setVariants((prev) => prev.filter((item) => item.id !== variant.id));
+
+    const data = new FormData();
+    data.append("variantId", variant.id);
+    data.append("productId", productId);
+
+    try {
+      await deleteVariant(data);
+      toast.success("Variant deleted successfully.");
+      router.refresh();
+    } catch (err: unknown) {
+      setVariants(previousVariants);
+      toast.error(errorMessage(err, "Failed to delete variant."));
     }
   };
 
@@ -342,13 +364,23 @@ export default function ProductVariantsManager({ productId, productName, initial
                       {variant.size.system} System / Raw Value: {variant.size.value}
                     </span>
                   </div>
-                  <button
-                    type="submit"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-neutral-950 hover:bg-neutral-850 px-4 text-xs font-bold uppercase tracking-wider text-white transition cursor-pointer"
-                  >
-                    <Save className="h-3.5 w-3.5" />
-                    Save Row
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteVariant(variant)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-red-200 px-3 text-xs font-bold uppercase tracking-wider text-red-600 transition hover:border-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex cursor-pointer h-8 items-center gap-1.5 rounded-lg bg-neutral-950 px-4 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-neutral-800"
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                      Save Row
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">

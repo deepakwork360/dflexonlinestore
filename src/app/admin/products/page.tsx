@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Save } from "lucide-react";
+import { DollarSign, ImagePlus, PackagePlus, Save, Settings2, Tag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -32,81 +32,107 @@ export default async function AdminProductsPage() {
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
-      <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-          <div className="mb-5 flex items-center gap-2">
-            <Plus className="h-4 w-4 text-rose-600" />
-            <h2 className="text-lg font-black uppercase tracking-tight">Add Product</h2>
+      <section className="grid gap-6 xl:grid-cols-[520px_1fr]">
+        <div className="h-fit rounded-lg border border-neutral-200 bg-white shadow-sm">
+          <div className="border-b border-neutral-100 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <PackagePlus className="h-5 w-5 text-rose-600" />
+              <h2 className="text-lg font-black uppercase tracking-tight">Add Product</h2>
+            </div>
           </div>
-          <form action={createProduct} encType="multipart/form-data" className="space-y-4">
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              Name
-              <Input name="name" required className="mt-1" placeholder="Nike Dunk Low Panda" />
-            </label>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              Description
-              <textarea
-                name="description"
-                required
-                className="mt-1 min-h-24 w-full rounded-md border border-input bg-transparent px-2.5 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                placeholder="Short merchandising description"
-              />
-            </label>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              Product Photos
-              <div className="mt-2">
+          <form action={createProduct} encType="multipart/form-data" className="space-y-5 p-5">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-neutral-800">
+                <Tag className="h-4 w-4 text-rose-600" />
+                Product Basics
+              </div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Name
+                <Input name="name" required className="mt-1 h-10 bg-white text-sm" placeholder="Nike Dunk Low Panda" />
+              </label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Description
+                <textarea
+                  name="description"
+                  required
+                  className="mt-1 min-h-28 w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  placeholder="Short merchandising description"
+                />
+              </label>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-neutral-800">
+                <ImagePlus className="h-4 w-4 text-rose-600" />
+                Product Photos
+              </div>
+              <div>
                 <ProductPhotoInputs />
               </div>
-            </label>
-            <div className="grid grid-cols-3 gap-3">
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-neutral-800">
+                <DollarSign className="h-4 w-4 text-rose-600" />
+                Pricing
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  Price
+                  <Input name="price" required type="number" step="0.01" min="0" className="mt-1 h-10 bg-white" />
+                </label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  Compare
+                  <Input name="compareAtPrice" type="number" step="0.01" min="0" className="mt-1 h-10 bg-white" />
+                </label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  Cost
+                  <Input name="costPrice" type="number" step="0.01" min="0" className="mt-1 h-10 bg-white" />
+                </label>
+              </div>
               <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Price
-                <Input name="price" required type="number" step="0.01" min="0" className="mt-1" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Compare
-                <Input name="compareAtPrice" type="number" step="0.01" min="0" className="mt-1" />
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Cost
-                <Input name="costPrice" type="number" step="0.01" min="0" className="mt-1" />
+                SKU
+                <Input name="sku" className="mt-1 h-10 bg-white" placeholder="Optional" />
               </label>
             </div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              SKU
-              <Input name="sku" className="mt-1" placeholder="Optional" />
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Gender
-                <select name="gender" className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-sm">
-                  {genderTargets.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
-                </select>
-              </label>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Status
-                <select name="status" className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-sm">
-                  {productStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
-                </select>
-              </label>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-neutral-800">
+                <Settings2 className="h-4 w-4 text-rose-600" />
+                Publishing
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  Gender
+                  <select name="gender" className="mt-1 h-10 w-full rounded-md border border-input bg-white px-3 text-sm font-semibold">
+                    {genderTargets.map((gender) => <option key={gender} value={gender}>{gender}</option>)}
+                  </select>
+                </label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  Status
+                  <select name="status" className="mt-1 h-10 w-full rounded-md border border-input bg-white px-3 text-sm font-semibold">
+                    {productStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
+                  </select>
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
               <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
                 Brand
-                <select name="brandId" className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-sm">
+                <select name="brandId" className="mt-1 h-10 w-full rounded-md border border-input bg-white px-3 text-sm font-semibold">
                   <option value="">No brand</option>
                   {brands.map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}
                 </select>
               </label>
               <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
                 Category
-                <select name="categoryId" className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-sm">
+                <select name="categoryId" className="mt-1 h-10 w-full rounded-md border border-input bg-white px-3 text-sm font-semibold">
                   <option value="">No category</option>
                   {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
                 </select>
               </label>
+              </div>
             </div>
-            <button className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-neutral-800">
+            <button className="inline-flex cursor-pointer h-11 w-full items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-neutral-800">
               <Save className="h-4 w-4" />
               Create Product
             </button>
@@ -152,7 +178,7 @@ export default async function AdminProductsPage() {
                           <select name="status" defaultValue={product.status} className="h-9 rounded-md border border-input bg-white px-2.5 text-xs font-bold">
                             {productStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
                           </select>
-                          <button className="inline-flex h-9 items-center rounded-md bg-neutral-950 px-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-neutral-800">
+                          <button className="inline-flex cursor-pointer h-9 items-center rounded-md bg-neutral-950 px-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-neutral-800">
                             Save
                           </button>
                         </form>
