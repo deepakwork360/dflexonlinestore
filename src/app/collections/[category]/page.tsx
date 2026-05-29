@@ -179,23 +179,20 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
   return (
     <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-16">
       
-      <section className="relative w-full h-[47vh] min-h-[300px] overflow-hidden flex items-center justify-center text-center">
-        <div className="absolute inset-0 z-10" />
+      <section className="relative w-full h-[200px] md:h-[45vh] overflow-hidden flex items-center justify-center text-center">
+        <div className="absolute inset-0 z-10 bg-black/40 md:bg-black/25" />
         <Image
           src={meta.image || "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1600&auto=format&fit=crop"}
           alt={meta.title}
           fill
           priority
-          className="object-cover  object-center select-none"
+          className="object-cover object-center select-none"
         />
         <div className="relative z-20 mx-auto max-w-4xl px-4 text-white">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#B61C38]">
-            {searchQuery ? "Search Results" : "COLLECTIONS"}
-          </span>
-          <h1 className="mt-2 text-3xl md:text-5xl font-black uppercase tracking-widest text-white leading-tight font-sans">
+          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-widest text-white leading-tight font-sans">
             {searchQuery ? `"${searchQuery}"` : meta.title}
           </h1>
-          <p className="mt-3 max-w-xl mx-auto text-xs md:text-sm text-neutral-250 leading-relaxed font-medium">
+          <p className="mt-3 max-w-xl mx-auto text-xs md:text-sm text-neutral-200 leading-relaxed font-medium">
             {searchQuery ? `Showing matched sneakers for query: "${searchQuery}"` : meta.subtitle}
           </p>
         </div>
