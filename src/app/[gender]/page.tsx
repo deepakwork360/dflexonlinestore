@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Tag } from "lucide-react";
 import Banner from "@/components/ui/home/banner";
+import WishlistButton from "@/components/ui/products/WishlistButton";
 
 interface Props {
   params: Promise<{ gender: string }>;
@@ -180,6 +181,17 @@ export default async function GenderCollectionPage({ params }: Props) {
                       {discountPercent}% OFF
                     </span>
                   )}
+
+                  <WishlistButton
+                    productId={product.id}
+                    productName={product.name}
+                    productSlug={product.slug}
+                    productPrice={Number(product.price)}
+                    productCompareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+                    productBrand={product.brand?.name}
+                    productImage={primaryImg}
+                  />
+
                   <Link href={`/products/${product.slug}`} className="block h-full w-full">
                     <Image
                       src={primaryImg}

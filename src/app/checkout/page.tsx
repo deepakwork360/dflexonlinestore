@@ -293,7 +293,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                    <p className="text-[10px] font  -bold uppercase tracking-widest text-neutral-400">
                       {item.brand}
                     </p>
                     <p className="text-xs font-bold text-neutral-900 line-clamp-1 mt-0.5">

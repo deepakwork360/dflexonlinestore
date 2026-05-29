@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import {
   Star,
   Heart,
@@ -102,7 +103,8 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
   );
   const [selectedSizeId, setSelectedSizeId] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(product.id);
   const [activeTab, setActiveTab] = useState<"details" | "specifications" | "shipping">("details");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -248,11 +250,24 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
   };
 
   const handleToggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
+    const primaryImg = product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url;
+    toggleWishlist({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: Number(product.price),
+      compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
+      brand: product.brand?.name ?? "Premium",
+      image: primaryImg,
+    });
     if (!isWishlisted) {
       toast.success(`Saved ${product.name} to your wishlist!`, {
-        icon: <Heart className="h-5 w-5 text-rose-500 fill-rose-500" />,
-        position: "top-center",
+        icon: <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />,
+        position: "bottom-center",
+      });
+    } else {
+      toast.success(`Removed ${product.name} from wishlist!`, {
+        position: "bottom-center",
       });
     }
   };
