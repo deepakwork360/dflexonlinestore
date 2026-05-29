@@ -90,7 +90,7 @@ export default function Banner({ gender }: BannerProps) {
   } as const;
 
   return (
-    <section className="relative w-full h-[80vh] overflow-hidden bg-neutral-950">
+    <section className="relative w-full h-[380px] sm:h-[50vh] md:h-[80vh] overflow-hidden bg-neutral-950 rounded-b-[2.5rem] md:rounded-b-none">
       
       {/* Background Image Container */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -116,7 +116,7 @@ export default function Banner({ gender }: BannerProps) {
         </AnimatePresence>
 
         {/* Sleek luxury gradient overlay to ensure perfect text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/45 to-transparent z-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/90 md:via-black/45 md:to-transparent z-20" />
       </div>
 
       {/* Content Layer (Left aligned matching high-end look) */}
