@@ -11,6 +11,13 @@ interface OrderItemData {
   quantity: number;
   price: number;
   sku: string;
+  productVariant?: {
+    color: string;
+    size: { name: string };
+    product: {
+      images: { url: string }[];
+    };
+  };
 }
 
 interface OrderData {
@@ -157,21 +164,38 @@ export default function MyOrdersPage() {
                           </h3>
                           
                           <div className="space-y-4">
-                            {order.items.map((item) => (
-                              <div key={item.id} className="flex justify-between items-center bg-white dark:bg-neutral-900 p-4 border border-neutral-100 dark:border-neutral-800 rounded-none">
-                                <div className="min-w-0 flex-1 pr-4">
-                                  <p className="text-xs font-bold text-black dark:text-white truncate">
-                                    {item.name}
-                                  </p>
-                                  <p className="text-[10px] font-semibold text-neutral-500 mt-1 uppercase tracking-wider">
-                                    SKU: {item.sku} &bull; Qty: {item.quantity}
-                                  </p>
+                            {order.items.map((item) => {
+                              const imageUrl = item.productVariant?.product?.images?.[0]?.url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2370&auto=format&fit=crop"; // fallback sneaker image
+                              const color = item.productVariant?.color || "Standard";
+                              const sizeName = item.productVariant?.size?.name || "N/A";
+
+                              return (
+                                <div key={item.id} className="flex gap-4 items-center bg-white dark:bg-neutral-900 p-4 border border-neutral-100 dark:border-neutral-800 rounded-none">
+                                  {/* Image Thumbnail */}
+                                  <div className="h-20 w-20 shrink-0 bg-neutral-100 dark:bg-neutral-800 p-1.5 border border-neutral-200 dark:border-neutral-700">
+                                    <img src={imageUrl} alt={item.name} className="h-full w-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                                  </div>
+                                  
+                                  {/* Details */}
+                                  <div className="min-w-0 flex-1 pr-4 space-y-1.5">
+                                    <p className="text-xs font-black text-black dark:text-white truncate">
+                                      {item.name}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                                      {color} &bull; Size {sizeName}
+                                    </p>
+                                    <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+                                      SKU: {item.sku} &bull; Qty: {item.quantity}
+                                    </p>
+                                  </div>
+                                  
+                                  {/* Price */}
+                                  <span className="text-xs font-black text-black dark:text-white shrink-0">
+                                    ${(Number(item.price) * item.quantity).toFixed(2)}
+                                  </span>
                                 </div>
-                                <span className="text-xs font-black text-black dark:text-white shrink-0">
-                                  ${(Number(item.price) * item.quantity).toFixed(2)}
-                                </span>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                       </motion.div>

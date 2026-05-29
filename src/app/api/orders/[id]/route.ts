@@ -17,7 +17,23 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
-        items: true,
+        items: {
+          include: {
+            productVariant: {
+              include: {
+                product: {
+                  include: {
+                    images: {
+                      orderBy: { sortOrder: 'desc' },
+                      take: 1,
+                    },
+                  },
+                },
+                size: true,
+              },
+            },
+          },
+        },
       },
     })
 

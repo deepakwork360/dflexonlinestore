@@ -15,7 +15,23 @@ export async function GET() {
         userId,
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            productVariant: {
+              include: {
+                product: {
+                  include: {
+                    images: {
+                      orderBy: { sortOrder: 'desc' },
+                      take: 1,
+                    },
+                  },
+                },
+                size: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',

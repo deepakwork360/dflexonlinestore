@@ -12,6 +12,13 @@ interface OrderItemData {
   quantity: number;
   price: number;
   sku: string;
+  productVariant?: {
+    color: string;
+    size: { name: string };
+    product: {
+      images: { url: string }[];
+    };
+  };
 }
 
 interface OrderData {
@@ -111,21 +118,38 @@ export default function SuccessPageClient() {
 
             {/* Product Items List */}
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              {order.items.map((item) => (
-                <div key={item.id} className="py-4 flex justify-between items-start gap-4">
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
-                      {item.name}
-                    </p>
-                    <p className="text-[10px] text-neutral-400 mt-1">
-                      SKU: {item.sku} &bull; Qty: {item.quantity}
-                    </p>
+              {order.items.map((item) => {
+                const imageUrl = item.productVariant?.product?.images?.[0]?.url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2370&auto=format&fit=crop";
+                const color = item.productVariant?.color || "Standard";
+                const sizeName = item.productVariant?.size?.name || "N/A";
+
+                return (
+                  <div key={item.id} className="py-4 flex gap-4 items-center">
+                    {/* Image Thumbnail */}
+                    <div className="h-16 w-16 shrink-0 bg-neutral-100 dark:bg-neutral-800 p-1 border border-neutral-200 dark:border-neutral-700">
+                      <img src={imageUrl} alt={item.name} className="h-full w-full object-cover mix-blend-multiply dark:mix-blend-normal" />
+                    </div>
+                    
+                    {/* Details */}
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200 truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">
+                        {color} &bull; Size {sizeName}
+                      </p>
+                      <p className="text-[10px] text-neutral-400">
+                        SKU: {item.sku} &bull; Qty: {item.quantity}
+                      </p>
+                    </div>
+                    
+                    {/* Price */}
+                    <span className="text-xs font-black text-neutral-950 dark:text-white shrink-0">
+                      ${(Number(item.price) * item.quantity).toFixed(2)}
+                    </span>
                   </div>
-                  <span className="text-xs font-black text-neutral-950 dark:text-white">
-                    ${(Number(item.price) * item.quantity).toFixed(2)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Pricing Totals Breakdown */}
