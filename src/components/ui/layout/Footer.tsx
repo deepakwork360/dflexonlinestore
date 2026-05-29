@@ -63,7 +63,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="w-full bg-neutral-950 text-neutral-400 border-t border-neutral-900 mt-auto">
+    <footer className="w-full rounded-t-2xl md:rounded-t-none bg-neutral-950 text-neutral-400 border-t border-neutral-900 mt-auto">
       {/* Newsletter / Club signup section */}
       <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 xl:px-12 py-16 sm:py-20 border-b border-neutral-900">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-center">
