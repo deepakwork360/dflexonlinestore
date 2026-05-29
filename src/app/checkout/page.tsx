@@ -281,12 +281,14 @@ export default function CheckoutPage() {
             </h2>
 
             {/* Items */}
-            <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-72 overflow-y-auto py-2 pr-3 pl-1">
               {items.map((item) => (
                 <div key={item.variantId} className="flex gap-3">
-                  <div className="relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200/50">
-                    <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
-                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
+                  <div className="relative h-16 w-16 flex-shrink-0">
+                    <div className="w-full h-full rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200/50 relative">
+                      <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
+                    </div>
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white z-10 shadow-sm">
                       {item.quantity}
                     </span>
                   </div>

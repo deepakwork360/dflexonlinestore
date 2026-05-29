@@ -57,7 +57,7 @@ export default function Footer() {
     if (!email) return;
     toast.success("Thank you for joining our inner circle!", {
       description: "You've successfully subscribed to our luxury sneaker newsletter.",
-      position: "bottom-right",
+      position: "bottom-center",
     });
     setEmail("");
   };
@@ -121,7 +121,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4.5 pt-2">
               <a
-                href="https://instagram.com"
+                href="#"
                 target="_blank"
                 rel="noreferrer"
                 className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
@@ -130,7 +130,7 @@ export default function Footer() {
                 <InstagramIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://twitter.com"
+                href="#"
                 target="_blank"
                 rel="noreferrer"
                 className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
@@ -139,11 +139,11 @@ export default function Footer() {
                 <TwitterIcon className="h-4 w-4" />
               </a>
               <a
-                href="https://pinterest.com"
+                href="#"
                 target="_blank"
                 rel="noreferrer"
                 className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
-                aria-label="Pinterest"
+                aria-label="Linkedin"
               >
                 <PinterestIcon className="h-4 w-4" />
               </a>
