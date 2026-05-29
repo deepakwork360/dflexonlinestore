@@ -127,11 +127,65 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-    // Simulate processing delay
-    await new Promise((res) => setTimeout(res, 1800));
-    clearCart();
-    setIsConfirmed(true);
-    setIsSubmitting(false);
+    try {
+      // 1. Create Draft Order and check stock
+      const resDraft = await fetch("/api/checkout/draft", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+          shippingAddress: {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            phone: form.phone,
+            street: form.address,
+            city: form.city,
+            state: form.state,
+            zip: form.zip,
+            country: form.country,
+          },
+          couponCode: appliedCoupon?.code,
+        }),
+      });
+
+      const draftData = await resDraft.json();
+      if (!resDraft.ok || !draftData.success) {
+        throw new Error(draftData.error || "Failed to create checkout order");
+      }
+
+      // 2. Create Stripe Checkout Session
+      const resSession = await fetch("/api/checkout/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: draftData.orderId,
+        }),
+      });
+
+      const sessionData = await resSession.json();
+      if (!resSession.ok || !sessionData.success) {
+        throw new Error(sessionData.error || "Failed to initiate payment gateway");
+      }
+
+      // 3. Redirect to Stripe Checkout
+      toast.success("Redirecting to secure payment page...", {
+        position: "top-center",
+      });
+      window.location.href = sessionData.url;
+    } catch (err: any) {
+      console.error("Checkout submission error:", err);
+      toast.error(err.message || "An unexpected error occurred during checkout.", {
+        position: "top-center",
+      });
+      setIsSubmitting(false);
+    }
   };
 
   // Confirmed State
