@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, Tag, ShoppingBag, ArrowRight } from "lucide-react";
 import FilterSidebar from "@/components/ui/products/FilterSidebar";
 import MobileFilterDrawer from "@/components/ui/products/MobileFilterDrawer";
+import WishlistButton from "@/components/ui/products/WishlistButton";
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -294,6 +295,16 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                             {discountPercent}% OFF
                           </span>
                         )}
+
+                        <WishlistButton
+                          productId={product.id}
+                          productName={product.name}
+                          productSlug={product.slug}
+                          productPrice={Number(product.price)}
+                          productCompareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+                          productBrand={product.brand?.name}
+                          productImage={primaryImg}
+                        />
 
                         <Link href={`/products/${product.slug}`} className="block h-full w-full">
                           {/* Primary Image */}

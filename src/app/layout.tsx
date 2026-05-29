@@ -7,8 +7,10 @@ import Footer from "@/components/ui/layout/Footer";
 import { Volkhov } from "next/font/google";
 import TopAnnouncementBar from "@/components/ui/layout/TopAnnouncementBar";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "sonner";
 import CartDrawer from "@/components/ui/cart/CartDrawer";
+import WishlistDrawer from "@/components/ui/cart/WishlistDrawer";
 
 const volkhov = Volkhov({
   subsets: ["latin"],
@@ -62,14 +64,17 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
     >
       <body className="min-h-full flex flex-col">
-        <CartProvider>
-          <TopAnnouncementBar />
-          <MainHeader />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <CartDrawer />
-          <Toaster position="bottom-center" richColors closeButton />
-        </CartProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <TopAnnouncementBar />
+            <MainHeader />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <WishlistDrawer />
+            <Toaster position="bottom-center" richColors closeButton />
+          </CartProvider>
+        </WishlistProvider>
       </body>
     </html>
   );
