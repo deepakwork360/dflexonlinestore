@@ -14,7 +14,7 @@ export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
   const { totalItems, openDrawer } = useCart();
 
   return (
-    <header className="w-full bg-transparent px-4 md:px-8 lg:px-12 py-3 flex items-center justify-between transition-all duration-300">
+    <header className="w-full bg-white dark:bg-neutral-950 px-4 md:px-8 lg:px-12 py-3 flex items-center justify-between border-b border-neutral-100 dark:border-neutral-900 transition-all duration-300">
       
       {/* Left side: Hamburger on mobile, category nav on desktop */}
       <div className="flex items-center">
