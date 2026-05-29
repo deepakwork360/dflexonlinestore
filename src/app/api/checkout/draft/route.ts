@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { OrderStatus, PaymentStatus, AddressType } from '@/generated/prisma'
 
@@ -25,6 +25,33 @@ export async function POST(req: Request) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Lazy sync: Ensure the user exists in our local PostgreSQL database
+    let dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!dbUser) {
+      try {
+        const client = await clerkClient()
+        const clerkUser = await client.users.getUser(userId)
+        const email = clerkUser.emailAddresses[0]?.emailAddress
+        const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ")
+        
+        dbUser = await prisma.user.create({
+          data: {
+            id: userId,
+            email,
+            name,
+            image: clerkUser.imageUrl,
+          },
+        })
+        console.log(`Resilient Sync: Dynamically synced missing user ${userId} to database.`)
+      } catch (syncError) {
+        console.error('Failed resilient user sync:', syncError)
+        return NextResponse.json({ error: 'User profile not synchronized in database.' }, { status: 400 })
+      }
     }
 
     const body = await req.json()
