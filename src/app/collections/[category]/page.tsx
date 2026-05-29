@@ -285,13 +285,12 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                     : 0;
 
                   return (
-                    <div key={product.id} className="group relative flex flex-col">
+                    <div key={product.id} className="group relative flex flex-col transition-all duration-300">
                       
                       {/* Image Container */}
-                      <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-850">
+                      <div className="relative aspect-square w-full overflow-hidden rounded-none bg-[#FBFBFB] border border-neutral-200/50 group-hover:border-neutral-400 transition-all duration-500 shadow-xs">
                         {hasDiscount && (
-                          <span className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
-                            <Tag className="h-3 w-3" />
+                          <span className="absolute top-3 left-3 z-10 rounded-none bg-rose-600 px-2.5 py-0.5 text-[8.5px] font-black text-white uppercase tracking-widest shadow-sm">
                             {discountPercent}% OFF
                           </span>
                         )}
@@ -317,37 +316,42 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                               className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-105"
                             />
                           )}
+
+                          {/* Premium slide-down overlay on hover */}
+                          {/* <div className="absolute inset-x-0 bottom-0 bg-white/90 backdrop-blur-xs py-2.5 border-b border-neutral-150/40 -translate-y-full group-hover:translate-y-0 transition-all duration-500 ease-out flex items-center justify-center gap-1.5 text-[8.5px] font-black uppercase tracking-widest text-neutral-900 select-none">
+                            Explore Details
+                          </div> */}
                         </Link>
                       </div>
 
                       {/* Metadata Content */}
-                      <div className="mt-4 flex flex-col flex-1">
+                      <div className="mt-3.5 flex flex-col flex-1 px-1 text-left">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">
+                          <span className="text-[9px] font-black tracking-[0.2em] text-[#B61C38] uppercase">
                             {product.brand?.name || "Premium Brand"}
                           </span>
-                          <span className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500">
-                            ⭐ {product.averageRating.toFixed(1)}
+                          <span className="text-[9px] font-black text-neutral-400 tracking-wider">
+                            ★ {product.averageRating.toFixed(1)}
                           </span>
                         </div>
 
-                        <h3 className="mt-1 text-sm font-bold tracking-tight text-neutral-900 dark:text-white line-clamp-1">
+                        <h3 className="mt-1 text-xs font-black uppercase tracking-wider text-neutral-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
                           <Link href={`/products/${product.slug}`} className="hover:underline">
                             {product.name}
                           </Link>
                         </h3>
 
-                        <p className="mt-0.5 text-xs text-neutral-550 dark:text-neutral-400 line-clamp-1">
+                        <p className="mt-0.5 text-[11px] font-medium text-neutral-500 line-clamp-1">
                           {product.category?.name || "Sneaker"}
                         </p>
 
                         {/* Pricing */}
-                        <div className="mt-3 flex items-baseline gap-2">
-                          <span className="text-sm font-extrabold text-neutral-900 dark:text-white">
+                        <div className="mt-2.5 flex items-baseline gap-2">
+                          <span className="text-sm font-black text-neutral-900 font-sans">
                             ${Number(product.price).toFixed(2)}
                           </span>
                           {hasDiscount && (
-                            <span className="text-xs text-neutral-450 line-through">
+                            <span className="text-xs text-neutral-400 line-through">
                               ${Number(product.compareAtPrice).toFixed(2)}
                             </span>
                           )}

@@ -290,7 +290,7 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
         <div className="lg:col-span-7 flex flex-col md:flex-row gap-6 items-start">
           {/* Vertical Thumbnails List */}
           {galleryImages.length > 1 && (
-            <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-x-visible w-full md:w-20 shrink-0 pb-2 md:pb-0 scrollbar-none">
+            <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-x-visible w-full md:w-20 shrink-0 py-1.5 px-1 md:py-0 md:px-0 pb-2 md:pb-0 scrollbar-none">
               {galleryImages.map((image, index) => {
                 const isActive = activeImageIndex === index;
                 return (

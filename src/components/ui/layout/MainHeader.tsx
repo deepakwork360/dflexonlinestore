@@ -18,8 +18,12 @@ export default function MainHeader() {
       // Do not hide the header if the mobile menu is open
       if (isMenuOpen) return;
 
-      // Threshold to reset back to initial state at the top of the screen
-      if (currentScrollY <= 20) {
+      // Calculate banner height boundary threshold
+      const isMobile = window.innerWidth < 768;
+      const threshold = isMobile ? 320 : 600;
+
+      // Keep navbar fully visible and unlocked when scrolling inside the banner
+      if (currentScrollY <= threshold) {
         setIsVisible(true);
         setRevealedByScrollUp(false);
         setLastScrollY(currentScrollY);
