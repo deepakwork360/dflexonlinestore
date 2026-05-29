@@ -2,9 +2,10 @@
 
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth, useUser } from "@clerk/nextjs";
 import {
   ShoppingBag,
   ChevronLeft,
@@ -14,6 +15,7 @@ import {
   CheckCircle2,
   Tag,
   X,
+  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { validateCoupon } from "@/app/admin/actions";
@@ -45,9 +47,47 @@ const EMPTY_FORM: FormData = {
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [fetchingAddresses, setFetchingAddresses] = useState(false);
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    const fetchAddresses = async () => {
+      setFetchingAddresses(true);
+      try {
+        const res = await fetch("/api/user/addresses");
+        const data = await res.json();
+        if (data.success && data.addresses) {
+          setSavedAddresses(data.addresses);
+        }
+      } catch (err) {
+        console.error("Failed to fetch saved addresses", err);
+      } finally {
+        setFetchingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, [isSignedIn]);
+
+  const handleSelectSavedAddress = (addr: any) => {
+    setForm(prev => ({
+      ...prev,
+      firstName: addr.firstName,
+      lastName: addr.lastName,
+      phone: addr.phone,
+      address: addr.street,
+      city: addr.city,
+      state: addr.state,
+      zip: addr.postalCode,
+      country: addr.country,
+    }));
+    toast.success("Saved address applied!");
+  };
 
   const [couponCode, setCouponCode] = useState("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
@@ -266,6 +306,41 @@ export default function CheckoutPage() {
 
         {/* LEFT: Shipping Form */}
         <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
+
+          {/* Saved Addresses Selector (Only if logged in and has addresses) */}
+          {isSignedIn && savedAddresses.length > 0 && (
+            <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
+              <h2 className="text-xs font-extrabold uppercase tracking-widest text-black border-b border-neutral-100 pb-3 flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                Saved Addresses
+              </h2>
+              <div className="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar">
+                {savedAddresses.map((addr) => (
+                  <div
+                    key={addr.id}
+                    onClick={() => handleSelectSavedAddress(addr)}
+                    className="snap-start shrink-0 w-64 p-4 border border-neutral-200 hover:border-black rounded-xl cursor-pointer transition-all hover:shadow-md bg-neutral-50 hover:bg-white group"
+                  >
+                    <p className="text-sm font-bold text-black">{addr.firstName} {addr.lastName}</p>
+                    <p className="text-xs text-neutral-500 mt-1 line-clamp-1">{addr.street}</p>
+                    <p className="text-xs text-neutral-500">{addr.city}, {addr.postalCode}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#B61C38] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Use This Address &rarr;
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setForm(EMPTY_FORM)}
+                  className="text-[10px] font-bold text-neutral-400 hover:text-black uppercase tracking-widest transition-colors"
+                >
+                  + Enter a New Address Manually
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Contact Info */}
           <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
