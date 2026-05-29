@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -223,11 +224,13 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           </p>
           {/* Mobile Filter sidetab drawer */}
           <div className="lg:hidden">
-            <MobileFilterDrawer
-              brands={dbBrands}
-              categories={dbCategories}
-              sizes={dbSizes}
-            />
+            <Suspense fallback={<div className="h-10 w-24 bg-neutral-100 dark:bg-neutral-900 rounded-full animate-pulse" />}>
+              <MobileFilterDrawer
+                brands={dbBrands}
+                categories={dbCategories}
+                sizes={dbSizes}
+              />
+            </Suspense>
           </div>
         </div>
 
@@ -235,11 +238,13 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           
           {/* Left Column: Interactive Filter Sidebar (Sticky, Left Corner, ml-5) - hidden on mobile, inline on desktop */}
           <div className="hidden lg:block lg:w-[250px] shrink-0 ml-5 lg:sticky lg:top-24 lg:self-start z-10">
-            <FilterSidebar 
-              brands={dbBrands}
-              categories={dbCategories}
-              sizes={dbSizes}
-            />
+            <Suspense fallback={<div className="h-64 w-full bg-neutral-50 dark:bg-neutral-900 rounded-xl animate-pulse" />}>
+              <FilterSidebar 
+                brands={dbBrands}
+                categories={dbCategories}
+                sizes={dbSizes}
+              />
+            </Suspense>
           </div>
 
           {/* Right Column: Dynamic Catalog Grid (Flex-1) */}
