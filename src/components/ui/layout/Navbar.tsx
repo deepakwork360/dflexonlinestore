@@ -1,6 +1,6 @@
 "use client";
 
-import { HeartIcon, LucideShoppingCart, User2, Shield, ShoppingBag } from "lucide-react";
+import { HeartIcon, LucideShoppingCart, User2, Shield, ShoppingBag, Package } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -124,7 +124,15 @@ export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
                 avatarBox: "h-6 w-6 border border-neutral-200",
               },
             }}
-          />
+          >
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="My Orders"
+                labelIcon={<Package className="h-4 w-4" />}
+                href="/account/orders"
+              />
+            </UserButton.MenuItems>
+          </UserButton>
         ) : (
           <SignInButton mode="modal">
             <button
