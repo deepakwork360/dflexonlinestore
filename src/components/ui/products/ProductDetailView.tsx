@@ -228,7 +228,7 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
     addToCart(item);
     openDrawer();
     toast.success(`${product.name} added to your bag!`, {
-      position: "bottom-right",
+      position: "bottom-center",
       duration: 3000,
     });
   };

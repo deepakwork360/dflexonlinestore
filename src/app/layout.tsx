@@ -68,7 +68,7 @@ export default function RootLayout({
           <main className="flex-grow">{children}</main>
           <Footer />
           <CartDrawer />
-          <Toaster position="bottom-right" richColors closeButton />
+          <Toaster position="bottom-center" richColors closeButton />
         </CartProvider>
       </body>
     </html>
