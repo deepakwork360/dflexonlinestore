@@ -82,6 +82,15 @@ export default async function ProductDetailPage({ params }: Props) {
         slug: true,
         color: true,
         colorHex: true,
+        images: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+          take: 1,
+          select: {
+            url: true,
+          },
+        },
       },
     });
   }
@@ -92,7 +101,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const serializedSiblings = JSON.parse(JSON.stringify(colorSiblings));
 
   return (
-    <main className="min-h-screen bg-white text-neutral-950 pb-20">
+    <main className="min-h-screen bg-[#F6F6F6] text-neutral-950 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
       <ProductDetailView
         product={serializedProduct}
         recommended={serializedRecommended}
