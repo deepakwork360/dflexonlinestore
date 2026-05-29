@@ -21,44 +21,51 @@ interface Props {
 
 const COLLECTION_METADATA: Record<
   string,
-  { title: string; subtitle: string; bg: string; isEmptyPlaceholder?: boolean }
+  { title: string; subtitle: string; bg: string; image: string; isEmptyPlaceholder?: boolean }
 > = {
   new: {
     title: "New Arrivals",
     subtitle: "Be the first to step into the latest releases, fresh styles, and seasonal additions.",
     bg: "from-amber-50/50 to-neutral-50 dark:from-neutral-900/30 dark:to-neutral-950",
+    image: "https://i.pinimg.com/1200x/d6/d9/06/d6d906b0e530fda21ba4df32c1ec042b.jpg",
   },
   shoes: {
-    title: "All Sneakers",
-    subtitle: "Explore our complete curated catalog of premium sneakers and classic silhouettes.",
+    title: "",
+    subtitle: "",
     bg: "from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-950",
+    image: "/images/2.webp",
   },
   clothes: {
-    title: "Apparel Collection",
-    subtitle: "Elevated sportswear, premium threads, and streetwear essentials launching soon.",
+    title: "",
+    subtitle: "",
     bg: "from-blue-50/40 to-neutral-50 dark:from-neutral-900/30 dark:to-neutral-950",
+    image: "/images/1.webp",
     isEmptyPlaceholder: true,
   },
   accessories: {
-    title: "Streetwear Accessories",
-    subtitle: "Socks, premium bags, laces, and clean care kits to perfect your collection.",
+    title: "",
+    subtitle: "",
     bg: "from-purple-50/40 to-neutral-50 dark:from-neutral-900/30 dark:to-neutral-950",
+    image: "/images/3.webp",
     isEmptyPlaceholder: true,
   },
   brands: {
-    title: "Partner Brands",
-    subtitle: "Discover official collaborations and catalogs from Nike, Jordan, Adidas, and New Balance.",
+    title: "",
+    subtitle: "",
     bg: "from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-950",
+    image: "/images/5.webp",
   },
   premium: {
-    title: "Premium Tier",
-    subtitle: "Ultra-premium silhouettes and rare colorways priced above $150.",
+    title: "",
+    subtitle: "",
     bg: "from-yellow-50/30 to-neutral-50 dark:from-amber-900/10 dark:to-neutral-950",
+    image: "/images/6.webp",
   },
   sale: {
-    title: "Active Sales & Offers",
-    subtitle: "High-demand styles on limited-time discounts. Act fast before stock runs out.",
+    title: "",
+    subtitle: "",
     bg: "from-rose-50/40 to-neutral-50 dark:from-rose-950/10 dark:to-neutral-950",
+    image: "/images/7.webp",
   },
 };
 
@@ -172,20 +179,43 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
   return (
     <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-16">
       
-      {/* Header Banner */}
-      <section className={`w-full py-12 md:py-16 bg-gradient-to-b ${meta.bg} border-b border-neutral-100 dark:border-neutral-900`}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.25em] text-neutral-400 dark:text-neutral-500">
-            {searchQuery ? "Search Results" : "Collections"}
+      <section className="relative w-full h-[47vh] min-h-[300px] overflow-hidden flex items-center justify-center text-center">
+        <div className="absolute inset-0 z-10" />
+        <Image
+          src={meta.image || "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1600&auto=format&fit=crop"}
+          alt={meta.title}
+          fill
+          priority
+          className="object-cover  object-center select-none"
+        />
+        <div className="relative z-20 mx-auto max-w-4xl px-4 text-white">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#B61C38]">
+            {searchQuery ? "Search Results" : "COLLECTIONS"}
           </span>
-          <h1 className="mt-2 text-4xl md:text-5xl font-extrabold tracking-tight text-black dark:text-white uppercase font-sans">
+          <h1 className="mt-2 text-3xl md:text-5xl font-black uppercase tracking-widest text-white leading-tight font-sans">
             {searchQuery ? `"${searchQuery}"` : meta.title}
           </h1>
-          <p className="mt-4 max-w-xl mx-auto text-sm md:text-base text-neutral-500 dark:text-neutral-400 leading-relaxed font-medium">
+          <p className="mt-3 max-w-xl mx-auto text-xs md:text-sm text-neutral-250 leading-relaxed font-medium">
             {searchQuery ? `Showing matched sneakers for query: "${searchQuery}"` : meta.subtitle}
           </p>
         </div>
       </section>
+
+      {/* Breadcrumb Navigation Bar */}
+      <div className="w-full bg-[#FBFBFB] border-b border-neutral-100 py-3.5 px-4 lg:px-8 xl:px-12 flex items-center justify-between text-[11px] font-bold text-neutral-400 tracking-wider uppercase select-none">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="hover:text-[#B61C38] transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-neutral-800">
+            {searchQuery ? "Search" : meta.title}
+          </span>
+        </div>
+        <a href="javascript:history.back()" className="hover:text-black transition-colors flex items-center gap-1 cursor-pointer">
+          Back
+        </a>
+      </div>
 
       {/* Main Filter + Grid Section */}
       <section className="w-full px-4 lg:px-8 xl:px-12 mt-12">
@@ -276,7 +306,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                             alt={product.name}
                             fill
                             sizes="(max-w-768px) 50vw, 25vw"
-                            className="object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
+                            className="object-cover object-center transition-all duration-200 ease-out group-hover:scale-105"
                             priority={false}
                           />
                           
@@ -287,7 +317,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                               alt={`${product.name} alternate view`}
                               fill
                               sizes="(max-w-768px) 50vw, 25vw"
-                              className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105"
+                              className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-105"
                             />
                           )}
                         </Link>

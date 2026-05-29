@@ -122,24 +122,29 @@ export default async function GenderCollectionPage({ params }: Props) {
   });
 
   return (
-    <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-0">
+    <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-0 relative overflow-hidden">
+
+      {/* Luxury Background Ambient Glows */}
+      <div className="absolute top-[80vh] -left-64 w-[600px] h-[600px] rounded-full bg-rose-500/[0.03] blur-[150px] pointer-events-none -z-10" />
+      <div className="absolute top-[160vh] -right-64 w-[700px] h-[700px] rounded-full bg-neutral-300/[0.06] blur-[160px] pointer-events-none -z-10" />
+      <div className="absolute top-[280vh] left-1/3 w-[600px] h-[600px] rounded-full bg-rose-500/[0.02] blur-[140px] pointer-events-none -z-10" />
 
       <Banner gender={genderKey} />
 
       {/* 1. New Collection Section */}
-      <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mt-16 mb-20">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-neutral-100 dark:border-neutral-900 pb-4 mb-8">
+      <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mt-20 mb-24 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-neutral-200/50 pb-5 mb-10 select-none">
           <div>
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-rose-500">
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#B61C38]">
               Fresh Arrivals
             </span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white uppercase mt-1 font-sans">
+            <h2 className="text-3xl font-black uppercase tracking-widest text-neutral-950 mt-1 font-sans">
               New Collection
             </h2>
           </div>
           <Link
             href={`/collections/shoes?gender=${genderKey}`}
-            className="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-full bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 px-6 py-2.5 text-xs font-bold uppercase tracking-widest shadow-md transition-all hover:scale-105 active:scale-95"
+            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95"
           >
             View All Products
           </Link>
@@ -168,11 +173,10 @@ export default async function GenderCollectionPage({ params }: Props) {
             }
 
             return (
-              <div key={product.id} className={`group relative flex flex-col transition-all duration-300 hover:-translate-y-1.5 ${visibilityClass}`}>
-                <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800 transition-all duration-500 group-hover:border-neutral-300 dark:group-hover:border-neutral-700 group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.06)] dark:group-hover:shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
+              <div key={product.id} className={`group relative flex flex-col transition-all duration-300 ${visibilityClass}`}>
+                <div className="relative aspect-square w-full overflow-hidden rounded-none bg-[#FBFBFB] border border-neutral-255 border-neutral-200/50 transition-all duration-500 group-hover:border-neutral-400">
                   {hasDiscount && (
-                    <span className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-0.5 text-[9px] font-extrabold text-white uppercase tracking-wider shadow-sm">
-                      <Tag className="h-3 w-3" />
+                    <span className="absolute top-3 left-3 z-10 rounded-none bg-rose-600 px-2.5 py-0.5 text-[8.5px] font-black text-white uppercase tracking-widest shadow-sm">
                       {discountPercent}% OFF
                     </span>
                   )}
@@ -182,7 +186,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                       alt={product.name}
                       fill
                       sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
-                      className="object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
+                      className="object-cover object-center transition-all duration-200 ease-out group-hover:scale-105"
                       priority={false}
                     />
                     {secondaryImg && (
@@ -191,27 +195,25 @@ export default async function GenderCollectionPage({ params }: Props) {
                         alt={`${product.name} alternate view`}
                         fill
                         sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
-                        className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105"
+                        className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-105"
                       />
                     )}
-                    {/* Premium Hover Overlay Action */}
-                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      {/* <span className="bg-white/95 dark:bg-neutral-950/95 backdrop-blur-sm text-neutral-900 dark:text-white text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out hidden md:inline-block">
-                        Quick View
-                      </span> */}
-                    </div>
+                    {/* Premium slide overlay on hover */}
+                    {/* <div className="absolute inset-x-0 bottom-0 bg-white/90 backdrop-blur-xs py-2.5 border-t border-neutral-150/40 translate-y-full group-hover:translate-y-0 transition-all duration-500 ease-out flex items-center justify-center gap-1.5 text-[8.5px] font-black uppercase tracking-widest text-neutral-900 select-none">
+                      Explore Details
+                    </div> */}
                   </Link>
                 </div>
-                <div className="mt-3.5 flex flex-col flex-1 px-1">
+                <div className="mt-3.5 flex flex-col flex-1 px-1 text-left">
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-extrabold tracking-[0.15em] text-neutral-400 dark:text-neutral-500 uppercase">
+                    <span className="text-[9px] font-black tracking-[0.2em] text-[#B61C38] uppercase">
                       {product.brand?.name || "Premium Brand"}
                     </span>
-                    <span className="text-[9px] font-bold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[9px] font-black text-neutral-400 tracking-wider">
                       ★ {product.averageRating.toFixed(1)}
                     </span>
                   </div>
-                  <h3 className="mt-1 text-sm font-extrabold tracking-tight text-neutral-900 dark:text-white line-clamp-1 group-hover:text-rose-600 dark:group-hover:text-rose-500 transition-colors">
+                  <h3 className="mt-1 text-xs font-black uppercase tracking-wider text-neutral-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
                     <Link href={`/products/${product.slug}`} className="hover:underline">
                       {product.name}
                     </Link>
@@ -371,36 +373,36 @@ export default async function GenderCollectionPage({ params }: Props) {
               "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200&auto=format&fit=crop";
 
             return (
-            <Link
-              key={brand.id}
-              href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
+              <Link
+                key={brand.id}
+                href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
               className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
-            >
-              {/* Background Image */}
-              <Image
-                src={imageUrl}
-                alt={`${brand.name} collection`}
-                fill
-                sizes="(max-w-768px) 50vw, 20vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
-              />
-              
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/95" />
+              >
+                {/* Background Image */}
+                <Image
+                  src={imageUrl}
+                  alt={`${brand.name} collection`}
+                  fill
+                  sizes="(max-w-768px) 50vw, 20vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
+                />
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/95" />
 
-              {/* Text Layer */}
+                {/* Text Layer */}
               <div className="relative z-10 space-y-1">
                 <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest block transform translate-y-1 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  Collection
-                </span>
+                    Collection
+                  </span>
                 <h3 className="text-xl font-black uppercase text-white tracking-wider font-sans group-hover:scale-105 origin-left transition-transform duration-300">
-                  {brand.name}
-                </h3>
+                    {brand.name}
+                  </h3>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-300 inline-flex items-center gap-1 group-hover:text-rose-400 transition-colors">
-                  Explore &rarr;
-                </span>
-              </div>
-            </Link>
+                    Explore &rarr;
+                  </span>
+                </div>
+              </Link>
             );
           })}
         </div>

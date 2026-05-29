@@ -66,7 +66,7 @@ export default function GenderProductGrid({ initialProducts }: GenderProductGrid
                     alt={product.name}
                     fill
                     sizes="(max-w-768px) 50vw, 25vw"
-                    className="object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
+                    className="object-cover object-center transition-all duration-200 ease-out group-hover:scale-105"
                     priority={false}
                   />
 
@@ -77,7 +77,7 @@ export default function GenderProductGrid({ initialProducts }: GenderProductGrid
                       alt={`${product.name} alternate view`}
                       fill
                       sizes="(max-w-768px) 50vw, 25vw"
-                      className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105"
+                      className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-105"
                     />
                   )}
                 </Link>
