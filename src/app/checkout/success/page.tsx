@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ShoppingBag, ArrowRight, Package } from "lucide-react";
@@ -26,7 +26,7 @@ interface OrderData {
   items: OrderItemData[];
 }
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
   const { clearCart } = useCart();
@@ -184,5 +184,22 @@ export default function SuccessPage() {
 
       </div>
     </main>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-[80vh] flex items-center justify-center bg-white dark:bg-neutral-950 px-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="h-10 w-10 border-2 border-[#B61C38] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">
+            Confirming Payment Status...
+          </p>
+        </div>
+      </main>
+    }>
+      <SuccessPageContent />
+    </Suspense>
   );
 }
