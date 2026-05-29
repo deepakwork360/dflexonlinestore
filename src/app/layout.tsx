@@ -29,6 +29,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { ClerkProvider } from '@clerk/nextjs';
+
 export const metadata: Metadata = {
   title: "Dflex Online Store",
   description: "Step into style with Dflex Sneakers. Premium, comfortable, and designed for every step of your journey. Shop men's, women's, and kids' footwear now.",
@@ -59,11 +61,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
+    <ClerkProvider
+      appearance={{
+        layout: {
+          logoImageUrl: '/logo.png',
+          logoPlacement: 'inside',
+        },
+        variables: {
+          colorPrimary: '#B61C38',
+          borderRadius: '0px',
+          fontFamily: 'var(--font-sans)',
+        },
+      }}
     >
-      <body className="min-h-full flex flex-col">
+      <html
+        lang="en"
+        className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
+      >
+        <body className="min-h-full flex flex-col">
         <WishlistProvider>
           <CartProvider>
             <TopAnnouncementBar />
@@ -77,5 +92,6 @@ export default function RootLayout({
         </WishlistProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
