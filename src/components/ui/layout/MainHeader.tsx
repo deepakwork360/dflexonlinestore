@@ -6,49 +6,57 @@ import CategoryNavigation from "./CategoryNavigation";
 import Sidebar from "./Sidebar";
 
 export default function MainHeader() {
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [revealedByScrollUp, setRevealedByScrollUp] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 15);
+
+      // Do not hide the header if the mobile menu is open
+      if (isMenuOpen) return;
+
+      // Threshold to reset back to initial state at the top of the screen
+      if (currentScrollY <= 20) {
+        setIsVisible(true);
+        setRevealedByScrollUp(false);
+        setLastScrollY(currentScrollY);
+        return;
+      }
+
+      // Determine scroll direction
+      if (currentScrollY > lastScrollY) {
+        // Scrolling down
+        if (!revealedByScrollUp) {
+          setIsVisible(false);
+        }
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up -> reveal and lock visibility
+        setIsVisible(true);
+        setRevealedByScrollUp(true);
+      }
+      setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY, isMenuOpen, revealedByScrollUp]);
 
   return (
     <>
       <div
-        className={`sticky top-0 z-50 w-full transition-all duration-500 ease-in-out ${
-          isScrolled
-            ? "px-4 pt-3 pb-2 bg-transparent"
-            : "px-0 pt-0 pb-0 bg-white dark:bg-neutral-950"
+        className={`sticky top-0 z-50 w-full transition-transform duration-500 ease-in-out ${
+          isVisible || isMenuOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div
-          className={`w-full transition-all duration-500 ease-in-out ${
-            isScrolled
-              ? "rounded-2xl border border-white/30 dark:border-neutral-850/40 bg-white/45 dark:bg-neutral-950/40 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]"
-              : "rounded-none border-b border-neutral-100 dark:border-neutral-900 bg-white dark:bg-neutral-950"
-          }`}
-        >
-          <Navbar isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
-        </div>
-
-        {/* Category Navigation - collapses on scroll for a super clean floating capsule style */}
-        <div
-          className={`overflow-hidden transition-all duration-500 ease-in-out ${
-            isScrolled ? "max-h-0 opacity-0 pointer-events-none" : "max-h-20 opacity-100"
-          }`}
-        >
-          <CategoryNavigation />
-        </div>
+        <Navbar isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
+        <CategoryNavigation />
       </div>
 
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>
   );
 }
+
