@@ -1,9 +1,11 @@
 "use client";
 
-import { HeartIcon, LucideShoppingCart, User2 } from "lucide-react";
+import { HeartIcon, LucideShoppingCart, User2, Shield, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { SignInButton, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 
 interface NavbarProps {
@@ -13,7 +15,13 @@ interface NavbarProps {
 
 export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
   const { totalItems, openDrawer } = useCart();
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const { wishlistItems, openWishlist } = useWishlist();
+  const pathname = usePathname();
+
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  const isAdminPage = pathname.startsWith("/admin");
 
   return (
     <header className="w-full bg-white dark:bg-neutral-950 px-4 md:px-8 lg:px-12 py-3 flex items-center justify-between border-b border-neutral-100 dark:border-neutral-900 transition-all duration-300">
@@ -75,13 +83,58 @@ export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
 
       {/* Right side: Utilities icons (Profile, Wishlist, Cart) */}
       <div className="flex items-center gap-3.5 md:gap-5">
-        <Link
-          href="/account"
-          className="text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white transition-all duration-200 hover:scale-105"
-          aria-label="Account"
-        >
-          <User2 className="h-4.5 w-4.5 stroke-[2.2]" />
-        </Link>
+        {isAdmin && (
+          <>
+            {/* Desktop Admin/Store Toggle Link */}
+            <Link
+              href={isAdminPage ? "/" : "/admin"}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-extrabold tracking-widest text-[#B61C38] dark:text-red-400 border border-[#B61C38]/30 dark:border-red-400/20 hover:border-[#B61C38] dark:hover:border-red-400 bg-red-50/50 dark:bg-red-950/20 transition-all duration-300 uppercase rounded-none hover:scale-102"
+            >
+              {isAdminPage ? (
+                <>
+                  <ShoppingBag className="h-3 w-3 stroke-[2.5]" />
+                  Store
+                </>
+              ) : (
+                <>
+                  <Shield className="h-3 w-3 stroke-[2.5]" />
+                  Admin Panel
+                </>
+              )}
+            </Link>
+            {/* Mobile Admin/Store Toggle Link */}
+            <Link
+              href={isAdminPage ? "/" : "/admin"}
+              className="inline-flex sm:hidden text-[#B61C38] hover:text-[#B61C38]/80 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200 hover:scale-110"
+              aria-label={isAdminPage ? "Store" : "Admin Panel"}
+            >
+              {isAdminPage ? (
+                <ShoppingBag className="h-4.5 w-4.5 stroke-[2.2]" />
+              ) : (
+                <Shield className="h-4.5 w-4.5 stroke-[2.2]" />
+              )}
+            </Link>
+          </>
+        )}
+
+        {isSignedIn ? (
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "h-6 w-6 border border-neutral-200",
+              },
+            }}
+          />
+        ) : (
+          <SignInButton mode="modal">
+            <button
+              className="text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white transition-all duration-200 hover:scale-105 cursor-pointer"
+              aria-label="Sign in"
+            >
+              <User2 className="h-4.5 w-4.5 stroke-[2.2]" />
+            </button>
+          </SignInButton>
+        )}
         
         <button
           onClick={openWishlist}
