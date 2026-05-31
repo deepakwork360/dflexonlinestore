@@ -68,12 +68,13 @@ export default async function ProductDetailPage({ params }: Props) {
     hasDelivered = !!deliveredOrder;
   }
 
-  // Fetch up to 4 recommended products in the same category or brand, excluding the current product
+  // Fetch up to 4 recommended products in the same category or brand of the same gender, excluding the current product
   const recommended = await prisma.product.findMany({
     where: {
       id: {
         not: product.id,
       },
+      gender: product.gender, // Filter by matching gender
       OR: [
         { categoryId: product.categoryId },
         { brandId: product.brandId },
