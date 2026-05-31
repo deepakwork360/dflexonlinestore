@@ -112,6 +112,7 @@ export default async function GenderCollectionPage({ params }: Props) {
   const newCollectionProducts = await prisma.product.findMany({
     where: {
       gender: dbGender,
+      status: "PUBLISHED",
     },
     include: {
       images: {
