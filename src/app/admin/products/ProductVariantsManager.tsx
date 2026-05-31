@@ -44,7 +44,7 @@ export default function ProductVariantsManager({ productId, productName, initial
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
 
   // New variant form states
-  const [selectedSizeId, setSelectedSizeId] = useState("");
+  const [selectedSizeIds, setSelectedSizeIds] = useState<string[]>([]);
   const [newSizeName, setNewSizeName] = useState("");
   const [newSizeValue, setNewSizeValue] = useState("");
   const [newSizeSystem, setNewSizeSystem] = useState("US");
@@ -56,6 +56,13 @@ export default function ProductVariantsManager({ productId, productName, initial
   const [compareAtPrice, setCompareAtPrice] = useState("");
 
   const [isSubmittingNew, setIsSubmittingNew] = useState(false);
+
+  // Toggle size selection
+  const toggleSize = (sizeId: string) => {
+    setSelectedSizeIds((prev) =>
+      prev.includes(sizeId) ? prev.filter((id) => id !== sizeId) : [...prev, sizeId]
+    );
+  };
 
   // Helper to generate dynamic SKU suggestion
   const generateSuggestedSku = (colVal: string, sizeIdVal: string) => {
@@ -76,7 +83,7 @@ export default function ProductVariantsManager({ productId, productName, initial
     return `${cleanProd}-${cleanColor}${sizeStr ? `-${sizeStr}` : ""}`;
   };
 
-  const suggestedSku = generateSuggestedSku(color, selectedSizeId);
+  const suggestedSku = generateSuggestedSku(color, selectedSizeIds[0] || "");
 
   // Suggested SKU generator for editing active variant rows
   const handleSuggestEditSku = (variantId: string, itemColor: string, sizeVal: string) => {
@@ -94,30 +101,70 @@ export default function ProductVariantsManager({ productId, productName, initial
 
   const handleAddVariantSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSizeId && (!newSizeName || !newSizeValue)) {
-      toast.error("Please select an existing size or enter a new size.");
+    if (selectedSizeIds.length === 0 && (!newSizeName || !newSizeValue)) {
+      toast.error("Please select at least one size or specify a new custom size.");
       return;
     }
 
     setIsSubmittingNew(true);
-    const data = new FormData();
-    data.append("productId", productId);
-    data.append("sizeId", selectedSizeId);
-    data.append("newSizeName", newSizeName);
-    data.append("newSizeValue", newSizeValue);
-    data.append("newSizeSystem", newSizeSystem);
-    data.append("sku", sku);
-    data.append("stock", String(stock));
-    data.append("color", color);
-    data.append("colorHex", colorHex);
-    data.append("price", price);
-    data.append("compareAtPrice", compareAtPrice);
+    const addedVariants: Variant[] = [];
 
     try {
-      const createdVariant = await createVariant(data);
-      toast.success("Variant created successfully!");
-      setVariants((prev) => [...prev, createdVariant]);
-      setSelectedSizeId("");
+      if (selectedSizeIds.length > 0) {
+        // Multi-size variant creation loop
+        for (const sizeId of selectedSizeIds) {
+          const sizeObj = sizes.find((s) => s.id === sizeId);
+          if (!sizeObj) continue;
+
+          // Generate unique SKU for this size
+          let finalSku = sku.trim();
+          if (!finalSku) {
+            finalSku = generateSuggestedSku(color, sizeId);
+          } else {
+            const sizeSuffix = `-${sizeObj.value}`;
+            if (!finalSku.endsWith(sizeSuffix)) {
+              finalSku = `${finalSku}${sizeSuffix}`;
+            }
+          }
+
+          const data = new FormData();
+          data.append("productId", productId);
+          data.append("sizeId", sizeId);
+          data.append("newSizeName", "");
+          data.append("newSizeValue", "");
+          data.append("newSizeSystem", "");
+          data.append("sku", finalSku);
+          data.append("stock", String(stock));
+          data.append("color", color);
+          data.append("colorHex", colorHex);
+          data.append("price", price);
+          data.append("compareAtPrice", compareAtPrice);
+
+          const createdVariant = await createVariant(data);
+          addedVariants.push(createdVariant);
+        }
+      } else if (newSizeName && newSizeValue) {
+        // Single custom size creation
+        const data = new FormData();
+        data.append("productId", productId);
+        data.append("sizeId", "");
+        data.append("newSizeName", newSizeName);
+        data.append("newSizeValue", newSizeValue);
+        data.append("newSizeSystem", newSizeSystem);
+        data.append("sku", sku || generateSuggestedSku(color, ""));
+        data.append("stock", String(stock));
+        data.append("color", color);
+        data.append("colorHex", colorHex);
+        data.append("price", price);
+        data.append("compareAtPrice", compareAtPrice);
+
+        const createdVariant = await createVariant(data);
+        addedVariants.push(createdVariant);
+      }
+
+      toast.success(`Successfully added ${addedVariants.length} variant(s)!`);
+      setVariants((prev) => [...prev, ...addedVariants]);
+      setSelectedSizeIds([]);
       setNewSizeName("");
       setNewSizeValue("");
       setSku("");
@@ -182,21 +229,78 @@ export default function ProductVariantsManager({ productId, productName, initial
         
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-            Existing Size Select
-            <select
-              value={selectedSizeId}
-              onChange={(e) => setSelectedSizeId(e.target.value)}
-              className="mt-1 h-9 w-full rounded-md border border-input bg-white px-2.5 text-xs font-bold text-neutral-800"
-            >
-              <option value="">Select size option</option>
-              {sizes.map((size) => (
-                <option key={size.id} value={size.id}>
-                  {size.name} ({size.system})
-                </option>
+          {/* Grouped Sizes Checklist */}
+          <div className="col-span-full rounded-lg border border-neutral-200 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                Select Sizes (Multi-Select for Quick Operation)
+              </span>
+              {selectedSizeIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedSizeIds([])}
+                  className="text-[9px] font-black text-[#B61C38] uppercase hover:underline"
+                >
+                  Clear Selection ({selectedSizeIds.length})
+                </button>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              {Object.entries(
+                sizes.reduce<Record<string, Size[]>>((acc, size) => {
+                  if (!acc[size.system]) acc[size.system] = [];
+                  acc[size.system].push(size);
+                  return acc;
+                }, {})
+              ).map(([system, systemSizes]) => (
+                <div key={system} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#B61C38]">
+                      {system} Sizing System
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const systemIds = systemSizes.map((s) => s.id);
+                        const allSelected = systemIds.every((id) => selectedSizeIds.includes(id));
+                        if (allSelected) {
+                          setSelectedSizeIds((prev) => prev.filter((id) => !systemIds.includes(id)));
+                        } else {
+                          setSelectedSizeIds((prev) => Array.from(new Set([...prev, ...systemIds])));
+                        }
+                      }}
+                      className="text-[9px] font-bold uppercase text-neutral-400 hover:text-neutral-900"
+                    >
+                      {systemSizes.map((s) => s.id).every((id) => selectedSizeIds.includes(id))
+                        ? "Deselect All System"
+                        : "Select All System"}
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                    {systemSizes.map((size) => {
+                      const isSelected = selectedSizeIds.includes(size.id);
+                      return (
+                        <button
+                          key={size.id}
+                          type="button"
+                          onClick={() => toggleSize(size.id)}
+                          className={`flex h-8 items-center justify-center rounded-lg border text-[11px] font-extrabold uppercase transition-all duration-200 select-none ${
+                            isSelected
+                              ? "bg-neutral-950 border-neutral-950 text-white shadow-xs"
+                              : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50"
+                          }`}
+                        >
+                          {size.value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
             Or New Size Name
@@ -257,21 +361,21 @@ export default function ProductVariantsManager({ productId, productName, initial
           </label>
 
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 relative">
-            SKU
+            SKU Code (Base)
             <div className="relative mt-1">
               <Input
-                required
+                required={selectedSizeIds.length === 0 && !newSizeValue}
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 className="h-9 text-xs pr-10 font-mono"
-                placeholder="E.g. VANS-BLK-10"
+                placeholder={selectedSizeIds.length > 0 ? "Will auto-append sizes" : "E.g. VANS-BLK-10"}
               />
               {suggestedSku && (
                 <button
                   type="button"
                   onClick={() => {
                     setSku(suggestedSku);
-                    toast.success("SKU suggested populated!");
+                    toast.success("Suggested base SKU populated!");
                   }}
                   title="Click to apply suggested autogenerated SKU"
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-450 hover:text-neutral-900 cursor-pointer"
@@ -282,7 +386,7 @@ export default function ProductVariantsManager({ productId, productName, initial
             </div>
             {suggestedSku && (
               <span className="block mt-1 text-[9px] font-semibold text-rose-600 animate-pulse">
-                Click sparkle or type color to auto-generate suggested SKU!
+                Auto-appends sizes (e.g., {suggestedSku})! Click sparkle to prefill.
               </span>
             )}
           </label>
@@ -333,7 +437,7 @@ export default function ProductVariantsManager({ productId, productName, initial
           className="mt-5 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-xs font-bold uppercase tracking-wider text-white hover:bg-neutral-800 disabled:opacity-50 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          {isSubmittingNew ? "Adding Variant..." : "Add Variant"}
+          {isSubmittingNew ? "Adding Variants..." : "Add Variant(s)"}
         </button>
       </form>
 
