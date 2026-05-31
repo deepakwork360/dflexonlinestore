@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, Boxes, PackageCheck, Settings, Tags, FolderTree, Ticket, MessageSquare, Ruler } from "lucide-react";
+import { BarChart3, Boxes, PackageCheck, Settings, Tags, FolderTree, Ticket, MessageSquare, Ruler, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/admin/orders", label: "Orders", icon: PackageCheck },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },
   { href: "/admin/reviews", label: "Reviews", icon: MessageSquare },
+  { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

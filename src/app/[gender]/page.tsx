@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, Tag } from "lucide-react";
 import Banner from "@/components/ui/home/banner";
 import WishlistButton from "@/components/ui/products/WishlistButton";
+import FAQAccordion from "@/components/ui/home/FAQAccordion";
 
 interface Props {
   params: Promise<{ gender: string }>;
@@ -61,6 +62,37 @@ const FLAGSHIP_CONFIG: Record<
   },
 };
 
+const ESSENTIALS_CONFIG: Record<
+  string,
+  {
+    title: string;
+    description: string;
+    image: string;
+    buttonText: string;
+  }
+> = {
+  men: {
+    title: "Back To Essentials",
+    description: "Timeless silhouettes updated with modern fits and quality materials — dependable, versatile, and made for effortless everyday wear.",
+    image: "https://i.pinimg.com/736x/3b/26/6a/3b266ad07741541e36f9a0dfdce8107c.jpg",
+    buttonText: "Start Shopping",
+  },
+  women: {
+    title: "Back To Essentials",
+    description: "Timeless silhouettes updated with modern fits and quality materials — dependable, versatile, and made for effortless everyday wear.",
+    image: "https://i.pinimg.com/1200x/43/1c/54/431c541108fa0cb064223e5bf110406c.jpg",
+    buttonText: "Start Shopping",
+  },
+  kids: {
+    title: "Back To Essentials",
+    description: "Timeless silhouettes updated with modern fits and quality materials — dependable, versatile, and made for effortless everyday wear.",
+    image: "https://i.pinimg.com/1200x/91/9e/6a/919e6a5c5af8051d3bcf0e3eeb385b16.jpg",
+    buttonText: "Start Shopping",
+  },
+};
+
+
+
 export default async function GenderCollectionPage({ params }: Props) {
   const resolvedParams = await params;
   const genderKey = resolvedParams.gender?.toLowerCase();
@@ -73,6 +105,7 @@ export default async function GenderCollectionPage({ params }: Props) {
 
   const genderLabel = GENDER_LABELS[genderKey];
   const flagship = FLAGSHIP_CONFIG[genderKey];
+  const essentials = ESSENTIALS_CONFIG[genderKey];
   const dbGender = genderKey.toUpperCase() as "MEN" | "WOMEN" | "KIDS";
 
   // Query top 12 latest arrivals for New Collection section (only showcasing active category/gender releases)
@@ -95,6 +128,49 @@ export default async function GenderCollectionPage({ params }: Props) {
     },
     take: 12,
   });
+
+  // Query all products for the Best Sellers section targeting this specific gender
+  const allProductsForBestSellers = await prisma.product.findMany({
+    where: {
+      gender: dbGender,
+      status: "PUBLISHED",
+    },
+    include: {
+      images: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+      },
+      brand: true,
+      category: true,
+      variants: {
+        include: {
+          orderItems: {
+            select: {
+              quantity: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Calculate best-selling products by summing quantity sold across all completed variants in orderItems
+  const bestSellerProducts = allProductsForBestSellers
+    .map((product) => {
+      const totalSold = product.variants.reduce((sum, variant) => {
+        const variantSold = variant.orderItems.reduce((vSum, item) => vSum + item.quantity, 0);
+        return sum + variantSold;
+      }, 0);
+      return { ...product, totalSold };
+    })
+    .sort((a, b) => {
+      if (b.totalSold !== a.totalSold) {
+        return b.totalSold - a.totalSold;
+      }
+      return b.reviewCount - a.reviewCount; // Fallback to popularity / review count
+    })
+    .slice(0, 6);
 
   const brandCards = await prisma.brand.findMany({
     include: {
@@ -159,10 +235,10 @@ export default async function GenderCollectionPage({ params }: Props) {
             const hasDiscount = product.compareAtPrice !== null;
             const discountPercent = hasDiscount
               ? Math.round(
-                  ((Number(product.compareAtPrice) - Number(product.price)) /
-                    Number(product.compareAtPrice)) *
-                    100
-                )
+                ((Number(product.compareAtPrice) - Number(product.price)) /
+                  Number(product.compareAtPrice)) *
+                100
+              )
               : 0;
 
             // Visibility classes: Exactly 4 products on mobile/tablet (2 rows of 2 in 2-column layout), 6 products on md and up
@@ -277,7 +353,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-75 group-hover:opacity-60"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-              
+
               <div className="absolute inset-0 p-8 flex flex-col justify-end text-left space-y-2">
                 <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em]">
                   Court Performance
@@ -309,7 +385,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-75 group-hover:opacity-60"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-              
+
               <div className="absolute inset-0 p-8 flex flex-col justify-end text-left space-y-2">
                 <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em]">
                   Everyday Curation
@@ -343,7 +419,7 @@ export default async function GenderCollectionPage({ params }: Props) {
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
-            
+
             <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-end text-left space-y-4">
               <div className="space-y-1">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-[9px] font-bold text-white uppercase tracking-widest shadow-sm">
@@ -366,7 +442,153 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
       </section>
 
-         {/* 3. Shop by Brand Curation Strip */}
+      {/* 2.5 Best Sellers Section */}
+      <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mt-10 mb-24 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-neutral-200/50 pb-5 mb-10 select-none">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#B61C38]">
+              Most Popular
+            </span>
+            <h2 className="text-3xl font-black uppercase tracking-widest text-neutral-950 mt-1 font-sans">
+              Best Sellers
+            </h2>
+          </div>
+          <Link
+            href={`/collections/shoes?gender=${genderKey}`}
+            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95"
+          >
+            View All Products
+          </Link>
+        </div>
+
+        {/* Responsive Grid matching request: Exactly identical 6-column premium product grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
+          {bestSellerProducts.map((product: any, idx: number) => {
+            const primaryImg = product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url;
+            const secondaryImg = product.images.find((img: any) => !img.isPrimary)?.url;
+            const hasDiscount = product.compareAtPrice !== null;
+            const discountPercent = hasDiscount
+              ? Math.round(
+                ((Number(product.compareAtPrice) - Number(product.price)) /
+                  Number(product.compareAtPrice)) *
+                100
+              )
+              : 0;
+
+            let visibilityClass = "block";
+            if (idx >= 6) {
+              visibilityClass = "hidden";
+            }
+
+            return (
+              <div key={product.id} className={`group relative flex flex-col transition-all duration-300 ${visibilityClass}`}>
+                <div className="relative aspect-square w-full overflow-hidden rounded-none bg-[#FBFBFB] border border-neutral-200/50 transition-all duration-500 group-hover:border-neutral-400">
+                  {hasDiscount && (
+                    <span className="absolute top-3 left-3 z-10 rounded-none bg-rose-600 px-2.5 py-0.5 text-[8.5px] font-black text-white uppercase tracking-widest shadow-sm">
+                      {discountPercent}% OFF
+                    </span>
+                  )}
+
+                  <WishlistButton
+                    productId={product.id}
+                    productName={product.name}
+                    productSlug={product.slug}
+                    productPrice={Number(product.price)}
+                    productCompareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+                    productBrand={product.brand?.name}
+                    productImage={primaryImg}
+                  />
+
+                  <Link href={`/products/${product.slug}`} className="block h-full w-full">
+                    <Image
+                      src={primaryImg}
+                      alt={product.name}
+                      fill
+                      sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
+                      className="object-cover object-center transition-all duration-200 ease-out group-hover:scale-105"
+                      priority={false}
+                    />
+                    {secondaryImg && (
+                      <Image
+                        src={secondaryImg}
+                        alt={`${product.name} alternate view`}
+                        fill
+                        sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 16vw"
+                        className="absolute inset-0 object-cover object-center opacity-0 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-105"
+                      />
+                    )}
+                  </Link>
+                </div>
+                <div className="mt-3.5 flex flex-col flex-1 px-1 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-black tracking-[0.2em] text-[#B61C38] uppercase">
+                      {product.brand?.name || "Premium Brand"}
+                    </span>
+                    <span className="text-[9px] font-black text-neutral-400 tracking-wider">
+                      ★ {product.averageRating.toFixed(1)}
+                    </span>
+                  </div>
+                  <h3 className="mt-1 text-xs font-black uppercase tracking-wider text-neutral-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                    <Link href={`/products/${product.slug}`} className="hover:underline">
+                      {product.name}
+                    </Link>
+                  </h3>
+                  <p className="mt-0.5 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 line-clamp-1">
+                    {product.category?.name || "Sneaker"}
+                  </p>
+                  <div className="mt-2.5 flex items-baseline gap-2">
+                    <span className="text-sm font-black text-neutral-900 dark:text-white font-sans">
+                      ${Number(product.price).toFixed(2)}
+                    </span>
+                    {hasDiscount && (
+                      <span className="text-xs text-neutral-400 dark:text-neutral-500 line-through">
+                        ${Number(product.compareAtPrice).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 2.7 Back To Essentials Spotlight Section */}
+      <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mt-10 mb-24 relative z-10 select-none">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+          {/* Left Side: Center-Aligned Text Content */}
+          <div className="flex flex-col items-center justify-center text-center space-y-6 py-6 sm:py-8">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-neutral-950 dark:text-white font-sans uppercase">
+              {essentials.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed max-w-md mx-auto">
+              {essentials.description}
+            </p>
+            <div className="pt-2">
+              <Link
+                href={`/collections/shoes?gender=${genderKey}`}
+                className="inline-flex items-center justify-center rounded-full bg-black px-10 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 hover:bg-neutral-800 hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                {essentials.buttonText}
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Side: Visual Image Showcase */}
+          <div className="relative aspect-[4/3] md:aspect-[16/11] lg:aspect-[1.5/1] overflow-hidden bg-neutral-50 shadow-xs border border-neutral-100 dark:border-neutral-900 rounded-lg">
+            <Image
+              src={essentials.image}
+              alt={`${essentials.title} Showcase`}
+              fill
+              sizes="(max-w-768px) 100vw, 50vw"
+              className="object-cover object-center select-none transition-transform duration-700 hover:scale-[1.01]"
+              priority={false}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Shop by Brand Curation Strip */}
       <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mb-24">
         <div className="border-b border-neutral-100 dark:border-neutral-900 pb-4 mb-8">
           <span className="text-xs font-bold uppercase tracking-[0.25em] text-rose-500">
@@ -388,7 +610,7 @@ export default async function GenderCollectionPage({ params }: Props) {
               <Link
                 key={brand.id}
                 href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
-              className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
+                className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
               >
                 {/* Background Image */}
                 <Image
@@ -398,19 +620,19 @@ export default async function GenderCollectionPage({ params }: Props) {
                   sizes="(max-w-768px) 50vw, 20vw"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
                 />
-                
+
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/95" />
 
                 {/* Text Layer */}
-              <div className="relative z-10 space-y-1">
-                <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest block transform translate-y-1 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="relative z-10 space-y-1">
+                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest block transform translate-y-1 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                     Collection
                   </span>
-                <h3 className="text-xl font-black uppercase text-white tracking-wider font-sans group-hover:scale-105 origin-left transition-transform duration-300">
+                  <h3 className="text-xl font-black uppercase text-white tracking-wider font-sans group-hover:scale-105 origin-left transition-transform duration-300">
                     {brand.name}
                   </h3>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-300 inline-flex items-center gap-1 group-hover:text-rose-400 transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-300 inline-flex items-center gap-1 group-hover:text-rose-400 transition-colors">
                     Explore &rarr;
                   </span>
                 </div>
@@ -420,7 +642,82 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
       </section>
 
+      {/* 3.5 Loved by Our Customers Testimonials Section */}
+      <section className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16 mt-20 mb-24 relative z-10 select-none">
+        {/* Left-Aligned Premium Title matching other landing sections */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-neutral-200/50 pb-5 mb-10">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#B61C38]">
+              Customer Stories
+            </span>
+            <h2 className="text-3xl font-black uppercase tracking-widest text-neutral-950 dark:text-white mt-1 font-sans">
+              Loved by Our Customers
+            </h2>
+          </div>
+        </div>
 
+        {/* Responsive Grid: 1 col on mobile, 2 on sm, 3 on md, 5 on lg/xl (showing 5 cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
+          {[
+            {
+              quote: "Absolutely love the craftsmanship and detail of these sneakers. The leather feels premium and they look stunning on feet. I wear them every day with total confidence and comfort!",
+              name: "Sophia M.",
+              avatar: "/images/f1.jpg",
+            },
+            {
+              quote: "Such a luxurious feel at a great value. The cushion and sleek finish are truly eye-catching. I've bought multiple pairs and will definitely be buying again!",
+              name: "Emma L.",
+              avatar: "/images/f2.jpg",
+            },
+            {
+              quote: "Exceeded all my expectations in every way. The vintage court design is timeless and incredibly refined. I've received so many compliments on these sneakers already!",
+              name: "Olivia R.",
+              avatar: "/images/f3.jpg",
+            },
+            {
+              quote: "The fit is absolutely perfect, and the arch support is next level. Perfect for daily city walking. I've recommended these sneakers to all my running club mates!",
+              name: "Michael T.",
+              avatar: "/images/m1.jpg",
+            },
+            {
+              quote: "Incredible styling and lightweight feel. They pair beautifully with both joggers and casual suits. The cushioning makes me feel like I'm walking on clouds!",
+              name: "David K.",
+              avatar: "/images/m2.jpg",
+            },
+          ].map((t, i) => (
+            <div
+              key={i}
+              className="bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-100 dark:border-neutral-900 p-6 sm:p-8 flex flex-col items-center justify-between text-center rounded-lg shadow-xs min-h-[290px]"
+            >
+              {/* Double quotes icon in signature deep red */}
+              <span className="text-4xl font-serif font-black text-[#B61C38] leading-none mb-3 block">
+                &ldquo;&rdquo;
+              </span>
+
+              {/* Review copy */}
+              <p className="text-xs sm:text-[13px] text-neutral-700 dark:text-neutral-300 font-medium leading-relaxed flex-1 flex items-center justify-center">
+                {t.quote}
+              </p>
+
+              {/* Profile details */}
+              <div className="flex items-center gap-2.5 mt-5 justify-center">
+                <div className="relative h-7 w-7 rounded-full overflow-hidden border border-neutral-255 shrink-0">
+                  <Image
+                    src={t.avatar}
+                    alt={`${t.name} Customer Avatar`}
+                    fill
+                    sizes="28px"
+                    className="object-cover object-center"
+                  />
+                </div>
+                <span className="text-[10px] font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-widest">
+                  {t.name}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* 4. flagship Spotlight Section */}
       <section className="mx-auto max-w-screen w-full px-4 sm:px-6 lg:px-12 xl:px-16 mb-20">
@@ -456,6 +753,9 @@ export default async function GenderCollectionPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* 4.5 Frequently Asked Questions (FAQ) Section */}
+      <FAQAccordion />
 
       {/* 5. The Dflex Premium Experience Section */}
       <section className="w-full bg-neutral-50 dark:bg-neutral-900/40 border-t border-neutral-200/40 dark:border-neutral-800 py-12 mt-20">
@@ -499,7 +799,7 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
       </section>
 
-      
+
 
     </main>
   );
