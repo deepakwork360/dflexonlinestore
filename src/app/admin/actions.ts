@@ -10,7 +10,10 @@ import {
   Prisma,
   ProductStatus,
   DiscountType,
+  UserRole,
+  UserStatus,
 } from "@/generated/prisma";
+import { clerkClient } from "@clerk/nextjs/server";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -923,12 +926,26 @@ export async function createReview(formData: FormData) {
   });
 
   if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email,
-        name,
+    throw new Error("No purchase history found. You can only write a review after purchasing the product and having it successfully delivered.");
+  }
+
+  // Enforce delivered purchase check
+  const deliveredOrder = await prisma.order.findFirst({
+    where: {
+      userId: user.id,
+      status: "DELIVERED",
+      items: {
+        some: {
+          productVariant: {
+            productId: productId,
+          },
+        },
       },
-    });
+    },
+  });
+
+  if (!deliveredOrder) {
+    throw new Error("You can only write a review for this sneaker after it has been purchased and successfully delivered to you.");
   }
 
   // Create review
@@ -940,7 +957,7 @@ export async function createReview(formData: FormData) {
       title,
       comment,
       isApproved: true, // Auto-approved for frictionless user experience
-      verifiedPurchase: false,
+      verifiedPurchase: true, // Auto-flagged as verified purchase
     },
   });
 
@@ -1124,4 +1141,57 @@ export async function deleteSize(formData: FormData) {
 
   revalidatePath("/admin/sizes");
   revalidatePath("/admin/products");
+}
+
+export async function updateUserRole(formData: FormData) {
+  const userId = textValue(formData, "userId");
+  const roleVal = textValue(formData, "role");
+
+  if (!userId || !roleVal) {
+    throw new Error("User ID and Role are required.");
+  }
+
+  const role = enumValue(UserRole, roleVal, UserRole.USER);
+
+  // 1. Update in PostgreSQL
+  await prisma.user.update({
+    where: { id: userId },
+    data: { role },
+  });
+
+  // 2. Synchronize to Clerk Metadata
+  try {
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        role: role.toLowerCase(), // 'admin', 'staff', or 'user'
+      },
+    });
+    console.log(`Clerk Sync: Successfully updated role of user ${userId} to ${role.toLowerCase()}.`);
+  } catch (clerkError) {
+    console.error(`Failed to synchronize role to Clerk for user ${userId}:`, clerkError);
+    throw new Error(`Successfully updated in DB, but failed to sync to Clerk: ${clerkError instanceof Error ? clerkError.message : String(clerkError)}`);
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+}
+
+export async function updateUserStatus(formData: FormData) {
+  const userId = textValue(formData, "userId");
+  const statusVal = textValue(formData, "status");
+
+  if (!userId || !statusVal) {
+    throw new Error("User ID and Status are required.");
+  }
+
+  const status = enumValue(UserStatus, statusVal, UserStatus.ACTIVE);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
 }

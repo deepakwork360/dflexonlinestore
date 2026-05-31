@@ -83,9 +83,10 @@ interface ProductDetailViewProps {
     images: Array<{ url: string }>;
   }>;
   colorSiblings?: ColorSibling[];
+  hasDelivered: boolean;
 }
 
-export default function ProductDetailView({ product, recommended, colorSiblings = [] }: ProductDetailViewProps) {
+export default function ProductDetailView({ product, recommended, colorSiblings = [], hasDelivered }: ProductDetailViewProps) {
   // Extract all unique colors from variants
   const uniqueColors = useMemo(() => {
     const map = new Map<string, { name: string; hex: string | null }>();
@@ -110,6 +111,7 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
 
   // Review states
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showDeliveredWarning, setShowDeliveredWarning] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewName, setReviewName] = useState("");
@@ -117,6 +119,19 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
+
+  const handleWriteReviewClick = () => {
+    if (!hasDelivered) {
+      setShowDeliveredWarning(true);
+      toast.error("You can only write a review for this sneaker after it has been purchased and successfully delivered to you.", {
+        position: "top-center",
+        duration: 5000,
+      });
+      return;
+    }
+    setShowReviewForm(!showReviewForm);
+    setShowDeliveredWarning(false);
+  };
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +207,7 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
     : 0;
 
   // Actions
-  const { addToCart, openDrawer } = useCart();
+  const { items, addToCart, openDrawer } = useCart();
   const router = useRouter();
 
   const buildCartItem = () => {
@@ -227,8 +242,23 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
     }
     const item = buildCartItem();
     if (!item) return;
+
+    // Check if the user already has the maximum available stock of this variant in their cart
+    const existingCartItem = items.find((i) => i.variantId === item.variantId);
+    if (existingCartItem && existingCartItem.quantity >= item.stock) {
+      toast.error(`You already have the maximum available stock (${item.stock} items) of this size in your bag.`, {
+        position: "top-center",
+      });
+      return;
+    }
+
     addToCart(item);
-    openDrawer();
+
+    // Open Cart Drawer only if this variant is not already in the cart (first-time addition)
+    if (!existingCartItem) {
+      openDrawer();
+    }
+
     toast.success(`${product.name} added to your bag!`, {
       position: "bottom-center",
       duration: 3000,
@@ -245,7 +275,13 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
     }
     const item = buildCartItem();
     if (!item) return;
-    addToCart(item);
+
+    // If not in cart or has room under stock cap, add it; otherwise proceed directly to checkout
+    const existingCartItem = items.find((i) => i.variantId === item.variantId);
+    if (!existingCartItem || existingCartItem.quantity < item.stock) {
+      addToCart(item);
+    }
+
     router.push("/checkout");
   };
 
@@ -803,11 +839,17 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
               Customer Reviews
             </h2>
             <button
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              className="mt-3 inline-flex items-center gap-1.5 border border-neutral-300 bg-white hover:bg-neutral-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-800 transition"
+              onClick={handleWriteReviewClick}
+              className="mt-3 inline-flex items-center gap-1.5 border border-neutral-300 bg-white hover:bg-neutral-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-800 transition cursor-pointer"
             >
               {showReviewForm ? "Cancel Review" : "Write a Review"}
             </button>
+            {showDeliveredWarning && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-bold uppercase tracking-wider rounded-lg flex items-center gap-2 max-w-md animate-in fade-in slide-in-from-top-1 duration-200">
+                <Info className="h-4 w-4 text-amber-600 shrink-0" />
+                <span>You can only write a review after the sneaker has been successfully delivered to you.</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-4">

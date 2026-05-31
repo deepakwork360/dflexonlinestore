@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ProductDetailView from "@/components/ui/products/ProductDetailView";
+import { auth } from "@clerk/nextjs/server";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -44,6 +45,27 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) {
     notFound();
+  }
+
+  // Fetch current user auth state and check if they have a delivered order for this product
+  const { userId } = await auth();
+  let hasDelivered = false;
+
+  if (userId) {
+    const deliveredOrder = await prisma.order.findFirst({
+      where: {
+        userId,
+        status: "DELIVERED",
+        items: {
+          some: {
+            productVariant: {
+              productId: product.id,
+            },
+          },
+        },
+      },
+    });
+    hasDelivered = !!deliveredOrder;
   }
 
   // Fetch up to 4 recommended products in the same category or brand, excluding the current product
@@ -106,7 +128,9 @@ export default async function ProductDetailPage({ params }: Props) {
         product={serializedProduct}
         recommended={serializedRecommended}
         colorSiblings={serializedSiblings}
+        hasDelivered={hasDelivered}
       />
     </main>
   );
 }
+
