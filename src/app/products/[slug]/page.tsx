@@ -66,7 +66,7 @@ export default async function ProductDetailPage({ params }: Props) {
           },
         },
       },
-    });
+    });       
 
     // 2. Count reviews submitted by this user for this product
     const reviewsCount = await prisma.review.count({
