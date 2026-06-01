@@ -91,7 +91,7 @@ export default function CategoryNavigation() {
   };
 
   return (
-    <div className="relative z-50 w-full bg-black border-b border-neutral-800 dark:border-neutral-800/80 backdrop-blur-md transition-all duration-300">
+    <div className="relative z-50 w-full bg-[#F6F6F6] transition-all duration-300">
       <div className="w-full px-4 md:px-8 lg:px-12">
         <div className="flex h-12 items-center justify-between gap-4">
           
@@ -103,12 +103,12 @@ export default function CategoryNavigation() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-200 hover:text-red-300 ${
+                  className={`whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-200 ${
                     isMobileHidden ? "hidden sm:inline-block" : "inline-block"
                   } ${
                     item.isHighlight
-                      ? "text-rose-500 font-semibold"
-                      : "text-neutral-300 dark:text-neutral-400"
+                      ? "text-rose-600 font-semibold hover:text-rose-700"
+                      : "text-black hover:text-neutral-600"
                   }`}
                 >
                   {item.name}
@@ -124,7 +124,7 @@ export default function CategoryNavigation() {
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-neutral-500" />
                 ) : (
-                  <Search className="h-4 w-4 text-neutral-300" />
+                  <Search className="h-4 w-4 text-neutral-500" />
                 )}
               </span>
               <input
@@ -135,7 +135,7 @@ export default function CategoryNavigation() {
                 onFocus={() => query.trim().length >= 2 && setIsOpen(true)}
                 autoComplete="off"
                 placeholder="Search sneakers..."
-                className="w-full rounded-full border border-neutral-700 bg-neutral-900 py-1.5 pl-10 pr-4 text-xs font-normal tracking-wide text-neutral-100 transition-all duration-300 placeholder-neutral-400 outline-none focus:border-neutral-500 focus:bg-neutral-800 focus:ring-1 focus:ring-neutral-500"
+                className="w-full rounded-full border border-neutral-300 bg-white py-1.5 pl-10 pr-4 text-xs font-normal tracking-wide text-neutral-900 transition-all duration-300 placeholder-neutral-400 outline-none focus:border-neutral-600 focus:bg-white focus:ring-1 focus:ring-neutral-600"
               />
             </form>
 

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
+// High-fidelity social SVG icons
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
@@ -18,20 +18,6 @@ const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-);
-
-const TwitterIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
   </svg>
 );
 
@@ -49,13 +35,27 @@ const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 export default function Footer() {
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    toast.success("Thank you for joining our inner circle!", {
+    if (!email.trim()) return;
+    toast.success("Welcome to Dflexonlinestore!", {
       description: "You've successfully subscribed to our luxury sneaker newsletter.",
       position: "bottom-center",
     });
@@ -63,201 +63,171 @@ export default function Footer() {
   };
 
   return (
-    <footer className="w-full rounded-t-2xl md:rounded-t-none bg-neutral-950 text-neutral-400 border-t border-neutral-900 mt-auto">
-      {/* Newsletter / Club signup section */}
-      <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 xl:px-12 py-16 sm:py-20 border-b border-neutral-900">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-center">
-          <div className="lg:col-span-6 space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500">
-              Exclusive Access
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-light tracking-[0.06em] text-white uppercase font-sans">
-              Join the <span className="font-extrabold text-neutral-300">Dflex Circle</span>
-            </h3>
-            <p className="max-w-md text-xs text-neutral-500 leading-relaxed">
-              Subscribe to receive early release notifications, premium collaborations, and member-only styling editorials.
-            </p>
-          </div>
-
-          <div className="lg:col-span-6">
-            <form onSubmit={handleSubscribe} className="relative flex items-center w-full max-w-lg">
-              <div className="relative flex-grow">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-neutral-600" />
-                </span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ENTER YOUR EMAIL ADDRESS"
-                  required
-                  className="w-full bg-neutral-900/50 border border-neutral-800 text-white placeholder-neutral-600 focus:placeholder-neutral-550 pl-11 pr-12 py-4 text-xs font-bold uppercase tracking-wider rounded-none focus:outline-none focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 transition-all duration-300"
-                />
-              </div>
-              <button
-                type="submit"
-                className="absolute right-0 h-full px-5 bg-white text-black hover:bg-neutral-200 transition-all duration-300 flex items-center justify-center cursor-pointer group"
-                aria-label="Subscribe"
-              >
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Main columns section */}
-      <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 xl:px-12 py-16 sm:py-24">
-        <div className="grid grid-cols-2 gap-y-12 gap-x-8 md:grid-cols-4 lg:grid-cols-5 lg:gap-12">
-          {/* Brand Introduction */}
-          <div className="col-span-2 md:col-span-4 lg:col-span-2 space-y-6">
-            <Link href="/" className="inline-block group">
-              <span className="text-2xl font-black tracking-[0.25em] text-white uppercase transition-all duration-300 group-hover:tracking-[0.3em]">
-                Dflex Store
+    <footer className="w-full bg-[#1A1A1A] text-neutral-400 border-t border-neutral-800 mt-auto pt-16 pb-8 font-sans">
+      
+      {/* Main Grid Layout */}
+      <div className="mx-auto max-w-[1440px] px-6 sm:px-12 md:px-16 lg:px-20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-x-12 lg:gap-x-16 items-start">
+          
+          {/* Left Column: Branding, Socials, and Subscription */}
+          <div className="md:col-span-6 space-y-7 flex flex-col items-start text-left">
+            {/* DALAMO Brand Logo */}
+            <Link href="/" className="inline-block">
+              <span className="text-4xl sm:text-5xl font-serif font-light tracking-[0.25em] text-white uppercase transition-all duration-300">
+                dflex Store
               </span>
             </Link>
-            <p className="max-w-sm text-xs leading-relaxed text-neutral-500 font-medium">
-              Curated precision streetwear and luxury sneaker releases. Merging absolute structural support, progressive material design, and high-impact aesthetics.
-            </p>
-            <div className="flex items-center gap-4.5 pt-2">
+
+            {/* Social Links Outlined Circles */}
+            <div className="flex items-center gap-3">
               <a
                 href="#"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-neutral-600 text-neutral-300 hover:text-white hover:border-white transition-all cursor-pointer"
                 aria-label="Instagram"
               >
                 <InstagramIcon className="h-4 w-4" />
               </a>
               <a
                 href="#"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
-                aria-label="Twitter"
-              >
-                <TwitterIcon className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all rounded-none border border-neutral-900 hover:border-neutral-800 cursor-pointer"
-                aria-label="Linkedin"
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-neutral-600 text-neutral-300 hover:text-white hover:border-white transition-all cursor-pointer"
+                aria-label="Pinterest"
               >
                 <PinterestIcon className="h-4 w-4" />
               </a>
+              <a
+                href="#"
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-neutral-600 text-neutral-300 hover:text-white hover:border-white transition-all cursor-pointer"
+                aria-label="Facebook"
+              >
+                <FacebookIcon className="h-4 w-4" />
+              </a>
+            </div>
+
+            {/* Subscription Form */}
+            <div className="space-y-3 w-full max-w-md">
+              <h4 className="text-sm font-semibold tracking-wider text-white">
+                Subscribe to Get 5% Off!
+              </h4>
+              <form onSubmit={handleSubscribe} className="flex flex-row items-stretch w-full">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your Email"
+                  required
+                  className="flex-grow bg-[#222222] border border-neutral-700 text-white placeholder-neutral-500 pl-4 pr-3 py-2 text-xs font-normal rounded-none focus:outline-none focus:border-neutral-550 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="bg-white text-black font-semibold text-xs tracking-wider uppercase px-6 py-2 border border-white hover:bg-neutral-200 transition-all rounded-none shrink-0 cursor-pointer"
+                >
+                  Sign Up
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* Column 1: Shop */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-450 block">
-              Shop Collections
-            </span>
-            <ul className="space-y-2.5 text-xs font-semibold">
-              <li>
-                <Link href="/women" className="hover:text-white transition-colors duration-200 uppercase tracking-wider block">
-                  Women&#39;s Releases
-                </Link>
-              </li>
-              <li>
-                <Link href="/men" className="hover:text-white transition-colors duration-200 uppercase tracking-wider block">
-                  Men&#39;s Releases
-                </Link>
-              </li>
-              <li>
-                <Link href="/kids" className="hover:text-white transition-colors duration-200 uppercase tracking-wider block">
-                  Kids&#39; Collections
-                </Link>
-              </li>
-              <li>
-                <Link href="/collections" className="hover:text-white transition-colors duration-200 uppercase tracking-wider block">
-                  Latest Drops
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 2: Brand */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-450 block">
-              Our Identity
-            </span>
-            <ul className="space-y-2.5 text-xs font-semibold">
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Our Chronicle
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Eco-Conscious
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Material Design
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Store Locator
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Customer Care */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-450 block">
-              Concierge Care
-            </span>
-            <ul className="space-y-2.5 text-xs font-semibold">
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Contact Support
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Shipping Policy
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  Return Portal
-                </span>
-              </li>
-              <li>
-                <span className="text-neutral-600 uppercase tracking-wider block cursor-not-allowed">
-                  F.A.Q.
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Legal / Payment Row */}
-      <div className="bg-black py-8 border-t border-neutral-900">
-        <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-center sm:text-left">
-            <span>&copy; {new Date().getFullYear()} Dflex Store. All rights reserved.</span>
-            <span className="hidden sm:inline text-neutral-800">|</span>
-            <div className="flex items-center gap-4">
-              <span className="hover:text-neutral-400 transition-colors cursor-not-allowed">Privacy</span>
-              <span className="hover:text-neutral-400 transition-colors cursor-not-allowed">Terms</span>
-              <span className="hover:text-neutral-400 transition-colors cursor-not-allowed">Accessibility</span>
+          {/* Right Column: Dynamic Footer Links Columns */}
+          <div className="md:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8 w-full text-left">
+            
+            {/* Quick Links Column */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-[0.15em] text-white">
+                Quick Links
+              </h3>
+              <ul className="space-y-2 text-[12.5px] font-medium">
+                <li>
+                  <Link href="/about" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/faq" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    FAQ&#39;s
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blogs" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    Blogs
+                  </Link>
+                </li>
+              </ul>
             </div>
+
+            {/* Customer Service Column */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-[0.15em] text-white">
+                Customer Service
+              </h3>
+              <ul className="space-y-2 text-[12.5px] font-medium">
+                <li>
+                  <Link href="/account" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    My Account
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/account/orders" className="hover:text-white transition-colors duration-200 block py-0.5">
+                    Track my Order
+                  </Link>
+                </li>
+                <li>
+                  <span className="text-neutral-500 uppercase tracking-widest text-[10px] font-bold block py-0.5 select-none">
+                    PRO
+                  </span>
+                </li>
+                <li>
+                  <span className="text-neutral-550 hover:text-white transition-colors duration-200 block py-0.5 cursor-pointer">
+                    Opt Out
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Policies Column */}
+            <div className="space-y-4 col-span-2 sm:col-span-1">
+              <h3 className="text-xs font-black uppercase tracking-[0.15em] text-white">
+                Policies
+              </h3>
+              <ul className="space-y-2 text-[12.5px] font-medium">
+                <li>
+                  <Link href="/terms" className="hover:text-white transition-colors duration-200 block py-0.5 cursor-pointer">
+                    Terms &amp; Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="hover:text-white transition-colors duration-200 block py-0.5 cursor-pointer">
+                    Private Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shipping" className="hover:text-white transition-colors duration-200 block py-0.5 cursor-pointer">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/returns" className="hover:text-white transition-colors duration-200 block py-0.5 cursor-pointer">
+                    Return / Cancellation Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-2 text-neutral-600">
-            <ShieldCheck className="h-4 w-4" />
-            <span className="font-extrabold text-neutral-400 tracking-[0.15em]">100% Secured Checkout</span>
-          </div>
         </div>
+
+        {/* Bottom Centered Copyright Bar */}
+        <div className="mt-16 pt-8 border-t border-neutral-800/40 text-center text-[11px] font-medium tracking-widest text-neutral-550">
+          <span>&copy; 2025 Dflexonlinestore &bull; All Rights Reserved</span>
+        </div>
+
       </div>
+
     </footer>
   );
 }

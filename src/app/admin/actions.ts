@@ -15,8 +15,13 @@ import {
 } from "@/generated/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 function textValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -50,15 +55,14 @@ async function uploadedImageValues(formData: FormData) {
     return [];
   }
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
-  await mkdir(uploadDir, { recursive: true });
-
   const urls: string[] = [];
   for (const file of files) {
-    const extension = path.extname(file.name).toLowerCase() || ".jpg";
-    const fileName = `${randomUUID()}${extension}`;
-    await writeFile(path.join(uploadDir, fileName), Buffer.from(await file.arrayBuffer()));
-    urls.push(`/uploads/products/${fileName}`);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
+    const response = await cloudinary.uploader.upload(base64Image, {
+      folder: "products",
+    });
+    urls.push(response.secure_url);
   }
 
   return urls;
@@ -71,14 +75,35 @@ async function uploadedBrandLogoValue(formData: FormData) {
     return null;
   }
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "brands");
-  await mkdir(uploadDir, { recursive: true });
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const response = await cloudinary.uploader.upload(base64Image, {
+    folder: "brands",
+  });
 
-  const extension = path.extname(file.name).toLowerCase() || ".jpg";
-  const fileName = `${randomUUID()}${extension}`;
-  await writeFile(path.join(uploadDir, fileName), Buffer.from(await file.arrayBuffer()));
+  return response.secure_url;
+}
 
-  return `/uploads/brands/${fileName}`;
+async function uploadedReviewImageValues(formData: FormData) {
+  const files = Array.from({ length: 5 }, (_, index) => formData.get(`photo${index + 1}`))
+    .filter((value): value is File => value instanceof File && value.size > 0)
+    .filter((file) => file.type.startsWith("image/"));
+
+  if (files.length === 0) {
+    return [];
+  }
+
+  const urls: string[] = [];
+  for (const file of files) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
+    const response = await cloudinary.uploader.upload(base64Image, {
+      folder: "reviews",
+    });
+    urls.push(response.secure_url);
+  }
+
+  return urls;
 }
 
 
@@ -916,6 +941,9 @@ export async function createReview(formData: FormData) {
   const title = textValue(formData, "title") || null;
   const comment = textValue(formData, "comment") || null;
 
+  // 1. Process review image uploads to Cloudinary
+  const images = await uploadedReviewImageValues(formData);
+
   if (!productId || !email || !name || !rating) {
     throw new Error("Missing required review fields.");
   }
@@ -956,6 +984,7 @@ export async function createReview(formData: FormData) {
       rating,
       title,
       comment,
+      images, // <--- Store the Cloudinary image URL array
       isApproved: true, // Auto-approved for frictionless user experience
       verifiedPurchase: true, // Auto-flagged as verified purchase
     },
