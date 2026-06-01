@@ -53,7 +53,7 @@ export default function CategoriesClient({
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
-      <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
+      <section className="grid items-start gap-6 lg:grid-cols-[380px_minmax(0,1fr)] xl:grid-cols-[420px_minmax(0,1fr)]">
         {/* Form Container */}
         <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm h-fit">
           <div className="mb-5 flex items-center justify-between">
