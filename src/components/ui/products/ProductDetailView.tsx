@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createReview } from "@/app/admin/actions";
+import { useUser } from "@clerk/nextjs";
 
 interface ColorSibling {
   id: string;
@@ -84,9 +85,12 @@ interface ProductDetailViewProps {
   }>;
   colorSiblings?: ColorSibling[];
   hasDelivered: boolean;
+  hasReviewedAll?: boolean;
 }
 
-export default function ProductDetailView({ product, recommended, colorSiblings = [], hasDelivered }: ProductDetailViewProps) {
+export default function ProductDetailView({ product, recommended, colorSiblings = [], hasDelivered, hasReviewedAll = false }: ProductDetailViewProps) {
+  const { user: clerkUser } = useUser();
+
   // Extract all unique colors from variants
   const uniqueColors = useMemo(() => {
     const map = new Map<string, { name: string; hex: string | null }>();
@@ -121,6 +125,16 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
   const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
 
+  // Auto-fill logged-in user profile details for reviews
+  useEffect(() => {
+    if (clerkUser) {
+      const email = clerkUser.emailAddresses[0]?.emailAddress || "";
+      const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || clerkUser.username || "";
+      setReviewName(name);
+      setReviewEmail(email);
+    }
+  }, [clerkUser]);
+
   const handleReviewFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selected = Array.from(e.target.files);
@@ -145,6 +159,15 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
       });
       return;
     }
+    
+    if (hasReviewedAll) {
+      toast.error("You have already reviewed all your purchases for this sneaker. To write another review, you must purchase the product again.", {
+        position: "top-center",
+        duration: 5000,
+      });
+      return;
+    }
+
     setShowReviewForm(!showReviewForm);
     setShowDeliveredWarning(false);
   };
@@ -900,8 +923,11 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
                       required
                       value={reviewName}
                       onChange={(e) => setReviewName(e.target.value)}
+                      readOnly={!!clerkUser}
                       placeholder="E.g. Alexander McQueen"
-                      className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black transition-colors"
+                      className={`w-full border border-neutral-300 px-4 py-3 text-sm font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                        clerkUser ? "bg-neutral-100/60 cursor-not-allowed select-none" : "bg-white"
+                      }`}
                     />
                   </div>
                   <div className="space-y-2">
@@ -913,8 +939,11 @@ export default function ProductDetailView({ product, recommended, colorSiblings 
                       required
                       value={reviewEmail}
                       onChange={(e) => setReviewEmail(e.target.value)}
+                      readOnly={!!clerkUser}
                       placeholder="E.g. alex@luxury.com"
-                      className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black transition-colors"
+                      className={`w-full border border-neutral-300 px-4 py-3 text-sm font-medium text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black transition-colors ${
+                        clerkUser ? "bg-neutral-100/60 cursor-not-allowed select-none" : "bg-white"
+                      }`}
                     />
                   </div>
                 </div>
