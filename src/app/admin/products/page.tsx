@@ -32,8 +32,8 @@ export default async function AdminProductsPage() {
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
-      <section className="grid gap-6 xl:grid-cols-[520px_1fr]">
-        <div className="h-fit rounded-lg border border-neutral-200 bg-white shadow-sm">
+      <section className="grid items-start gap-6 lg:grid-cols-[400px_minmax(0,1fr)] xl:grid-cols-[480px_minmax(0,1fr)]">
+        <div className="h-fit rounded-lg border border-neutral-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-neutral-100 px-5 py-4">
             <div className="flex items-center gap-2">
               <PackagePlus className="h-5 w-5 text-rose-600" />
@@ -165,7 +165,7 @@ export default async function AdminProductsPage() {
                           <Badge variant={totalStock <= 5 ? "destructive" : "secondary"}>{totalStock} in stock</Badge>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
                         <Link href={`/products/${product.slug}`} className="inline-flex h-9 items-center rounded-md border border-neutral-200 px-3 text-xs font-bold uppercase tracking-wider hover:border-neutral-950">
                           View
                         </Link>
@@ -185,7 +185,7 @@ export default async function AdminProductsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mt-4 grid gap-2 grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                       {product.variants.length === 0 ? (
                         <p className="text-xs text-neutral-500">No variants yet.</p>
                       ) : (

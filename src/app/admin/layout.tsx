@@ -18,8 +18,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-950">
       <div className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div>
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-5 sm:px-6 xl:flex-row xl:items-center xl:justify-between xl:px-8">
+          <div className="shrink-0">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-rose-600">
               Dflex Commerce
             </p>
@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Admin Panel
             </h1>
           </div>
-          <nav className="flex gap-2 overflow-x-auto">
+          <nav className="flex gap-2 overflow-x-auto pb-3 min-w-0 w-full xl:w-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
