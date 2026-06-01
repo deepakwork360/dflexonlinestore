@@ -37,6 +37,7 @@ export default function CategoryNavigation() {
     if (query.trim().length < 2) {
       setResults([]);
       setIsOpen(false);
+      setIsLoading(false);
       return;
     }
 

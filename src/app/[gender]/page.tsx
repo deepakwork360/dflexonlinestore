@@ -222,7 +222,7 @@ export default async function GenderCollectionPage({ params }: Props) {
           </div>
           <Link
             href={`/collections/shoes?gender=${genderKey}`}
-            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95"
+            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95 mt-5 sm:mt-0 self-center sm:self-auto"
           >
             View All Products
           </Link>
@@ -456,7 +456,7 @@ export default async function GenderCollectionPage({ params }: Props) {
           </div>
           <Link
             href={`/collections/shoes?gender=${genderKey}`}
-            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95"
+            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all duration-300 hover:bg-black/80 hover:scale-105 active:scale-95 mt-5 sm:mt-0 self-center sm:self-auto"
           >
             View All Products
           </Link>
