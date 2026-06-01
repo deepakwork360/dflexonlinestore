@@ -13,7 +13,7 @@ import {
   UserRole,
   UserStatus,
 } from "@/generated/prisma";
-import { clerkClient } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { randomUUID } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -948,17 +948,28 @@ export async function createReview(formData: FormData) {
     throw new Error("Missing required review fields.");
   }
 
-  // Find or create User by email
-  let user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const { userId } = await auth();
+
+  let user = null;
+  if (userId) {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+  }
+
+  // Fallback to email search if not found via Clerk auth session ID
+  if (!user) {
+    user = await prisma.user.findUnique({
+      where: { email },
+    });
+  }
 
   if (!user) {
     throw new Error("No purchase history found. You can only write a review after purchasing the product and having it successfully delivered.");
   }
 
-  // Enforce delivered purchase check
-  const deliveredOrder = await prisma.order.findFirst({
+  // Count the number of delivered orders containing this product
+  const deliveredOrdersCount = await prisma.order.count({
     where: {
       userId: user.id,
       status: "DELIVERED",
@@ -972,8 +983,20 @@ export async function createReview(formData: FormData) {
     },
   });
 
-  if (!deliveredOrder) {
+  if (deliveredOrdersCount === 0) {
     throw new Error("You can only write a review for this sneaker after it has been purchased and successfully delivered to you.");
+  }
+
+  // Count existing reviews submitted by this user for this product
+  const existingReviewsCount = await prisma.review.count({
+    where: {
+      userId: user.id,
+      productId: productId,
+    },
+  });
+
+  if (existingReviewsCount >= deliveredOrdersCount) {
+    throw new Error("You have already reviewed all your purchases for this sneaker. To write another review, you must purchase the product again.");
   }
 
   // Create review

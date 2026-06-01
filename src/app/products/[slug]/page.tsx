@@ -50,9 +50,11 @@ export default async function ProductDetailPage({ params }: Props) {
   // Fetch current user auth state and check if they have a delivered order for this product
   const { userId } = await auth();
   let hasDelivered = false;
+  let hasReviewedAll = false;
 
   if (userId) {
-    const deliveredOrder = await prisma.order.findFirst({
+    // 1. Count delivered orders containing this product
+    const deliveredOrdersCount = await prisma.order.count({
       where: {
         userId,
         status: "DELIVERED",
@@ -65,7 +67,17 @@ export default async function ProductDetailPage({ params }: Props) {
         },
       },
     });
-    hasDelivered = !!deliveredOrder;
+
+    // 2. Count reviews submitted by this user for this product
+    const reviewsCount = await prisma.review.count({
+      where: {
+        userId,
+        productId: product.id,
+      },
+    });
+
+    hasDelivered = deliveredOrdersCount > 0;
+    hasReviewedAll = reviewsCount >= deliveredOrdersCount;
   }
 
   // Fetch up to 4 recommended products in the same category or brand of the same gender, excluding the current product
@@ -130,6 +142,7 @@ export default async function ProductDetailPage({ params }: Props) {
         recommended={serializedRecommended}
         colorSiblings={serializedSiblings}
         hasDelivered={hasDelivered}
+        hasReviewedAll={hasReviewedAll}
       />
     </main>
   );
