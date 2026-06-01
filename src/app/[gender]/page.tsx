@@ -344,7 +344,7 @@ export default async function GenderCollectionPage({ params }: Props) {
             {/* 1. Basketball Card */}
             <Link
               href={`/collections/shoes?gender=${genderKey}&category=basketball`}
-              className="flex-1 relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
+              className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
             >
               <Image
                 src="https://i.pinimg.com/1200x/59/ec/49/59ec49e0a6e458ddc23d5f219d242ce6.jpg"
@@ -376,7 +376,7 @@ export default async function GenderCollectionPage({ params }: Props) {
             {/* 2. Lifestyle Card */}
             <Link
               href={`/collections/shoes?gender=${genderKey}&category=lifestyle`}
-              className="flex-1 relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
+              className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
             >
               <Image
                 src="https://i.pinimg.com/1200x/18/d3/88/18d3880e3fb4006876f1e5268517ce15.jpg"
@@ -409,7 +409,7 @@ export default async function GenderCollectionPage({ params }: Props) {
           {/* Right Column: One Large Editorial Card for Running */}
           <Link
             href={`/collections/shoes?gender=${genderKey}&category=running`}
-            className="w-full lg:w-[58%] relative overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full block"
+            className="w-full lg:w-[58%] relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full block"
           >
             <Image
               src="https://i.pinimg.com/1200x/cd/68/aa/cd68aa257b0310cc65237e3e3b5b1a27.jpg"

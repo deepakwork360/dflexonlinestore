@@ -124,7 +124,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const serializedSiblings = JSON.parse(JSON.stringify(colorSiblings));
 
   return (
-    <main className="min-h-screen bg-[#F6F6F6] text-neutral-950 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#F6F6F6] text-neutral-950 pt-0 pb-6 sm:pb-12 px-4 sm:px-6 lg:px-8">
       <ProductDetailView
         product={serializedProduct}
         recommended={serializedRecommended}
