@@ -64,11 +64,31 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     router.push(`/products/${slug}`);
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      onClose();
+      setIsSearchFocused(false);
+      router.push(`/collections/shoes?q=${encodeURIComponent(query.trim())}`);
+    }
+  };
+
   // Close drawer on path change
   useEffect(() => {
     onClose();
     setQuery("");
   }, [router]);
+
+  // Click outside search container to close mobile search suggestion dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Lock body scroll when sidebar drawer is open
   useEffect(() => {
@@ -161,7 +181,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             {/* Mobile Debounced Live Search */}
             <div className="px-5 py-4 border-b border-neutral-900/50" ref={searchRef}>
-              <div className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative">
                 <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-neutral-500">
                   {isLoading ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-500" />
@@ -175,10 +195,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   onChange={(e) => setQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   placeholder="SEARCH FOR SNEAKERS..."
-                  className="w-full rounded-full border border-neutral-850 bg-neutral-900/80 py-2.5 pl-10 pr-4 text-xs font-bold uppercase tracking-wider text-neutral-100 placeholder-neutral-500 outline-none focus:border-neutral-750 focus:bg-neutral-900 focus:ring-1 focus:ring-rose-500/20 transition-all duration-200"
+                  className="w-full rounded-full border border-neutral-855 bg-neutral-900/80 py-2.5 pl-10 pr-4 text-xs font-bold uppercase tracking-wider text-neutral-100 placeholder-neutral-500 outline-none focus:border-neutral-750 focus:bg-neutral-900 focus:ring-1 focus:ring-rose-500/20 transition-all duration-200"
                 />
                 {query.trim().length > 0 && (
                   <button
+                    type="button"
                     onClick={() => {
                       setQuery("");
                       setResults([]);
@@ -188,7 +209,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
-              </div>
+              </form>
 
               {/* Suggestions Container inside Sidebar */}
               {isSearchFocused && query.trim().length >= 2 && (
@@ -215,6 +236,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         const imgUrl = product.images[0]?.url;
                         return (
                           <button
+                            type="button"
                             key={product.id}
                             onClick={() => handleSuggestionClick(product.slug)}
                             className="w-full flex items-center gap-3 rounded-lg p-2 text-left hover:bg-white/[0.05] transition-colors"
@@ -248,6 +270,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           </button>
                         );
                       })}
+                      {/* Premium Pill style View All Results button inside Mobile suggestions panel */}
+                      <div className="border-t border-neutral-900 pt-2 mt-2 px-1">
+                        <Link
+                          href={`/collections/shoes?q=${encodeURIComponent(query)}`}
+                          onClick={() => {
+                            setIsSearchFocused(false);
+                            onClose();
+                          }}
+                          className="flex items-center justify-center gap-2 py-2 w-full rounded-lg bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-[10px] font-bold uppercase tracking-wider text-neutral-200 transition-colors"
+                        >
+                          View all results <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>

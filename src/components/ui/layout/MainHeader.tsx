@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Navbar from "./Navbar";
 import CategoryNavigation from "./CategoryNavigation";
 import Sidebar from "./Sidebar";
@@ -56,7 +56,9 @@ export default function MainHeader() {
         }`}
       >
         <Navbar isMenuOpen={isMenuOpen} onToggleMenu={() => setIsMenuOpen(!isMenuOpen)} />
-        <CategoryNavigation />
+        <Suspense fallback={<div className="h-12 bg-[#F6F6F6] w-full" />}>
+          <CategoryNavigation />
+        </Suspense>
       </div>
 
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />

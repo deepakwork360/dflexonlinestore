@@ -3,18 +3,25 @@
 import { Search, Loader2, ImageOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export default function CategoryNavigation() {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [query, setQuery] = useState(searchParams.get("q") || "");
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  
-  const router = useRouter();
-  const pathname = usePathname();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Sync state with URL parameter if it changes externally
+  useEffect(() => {
+    setQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   // Derive gender from current pathname by splitting segments
   // e.g. /women → "women", /men → "men", /kids → "kids", anything else → null
@@ -34,7 +41,7 @@ export default function CategoryNavigation() {
 
   // Live debounced search effect
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (!isFocused || query.trim().length < 2) {
       setResults([]);
       setIsOpen(false);
       setIsLoading(false);
@@ -59,13 +66,14 @@ export default function CategoryNavigation() {
     }, 300); // 300ms optimal e-commerce debounce time
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, isFocused]);
 
   // Click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setIsFocused(false);
       }
     }
 
@@ -120,7 +128,17 @@ export default function CategoryNavigation() {
 
           {/* Right Side: Stateful Debounced Live Search */}
           <div ref={dropdownRef} className="relative hidden sm:block w-64 md:w-80 mr-30">
-            <form action="/collections/shoes" method="GET" className="relative">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (query.trim()) {
+                  setIsOpen(false);
+                  setIsFocused(false);
+                  router.push(`/collections/shoes?q=${encodeURIComponent(query.trim())}`);
+                }
+              }}
+              className="relative"
+            >
               <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-neutral-400">
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-neutral-500" />
@@ -133,7 +151,10 @@ export default function CategoryNavigation() {
                 name="q"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => query.trim().length >= 2 && setIsOpen(true)}
+                onFocus={() => {
+                  setIsFocused(true);
+                  if (query.trim().length >= 2) setIsOpen(true);
+                }}
                 autoComplete="off"
                 placeholder="Search sneakers..."
                 className="w-full rounded-full border border-neutral-300 bg-white py-1.5 pl-10 pr-4 text-xs font-normal tracking-wide text-neutral-900 transition-all duration-300 placeholder-neutral-400 outline-none focus:border-neutral-600 focus:bg-white focus:ring-1 focus:ring-neutral-600"

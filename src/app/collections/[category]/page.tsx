@@ -128,14 +128,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
   };
 
   // Base Collection Filters
-  if (categoryKey === "shoes" && searchQuery) {
-    whereClause.OR = [
-      { name: { contains: searchQuery, mode: "insensitive" } },
-      { description: { contains: searchQuery, mode: "insensitive" } },
-      { brand: { name: { contains: searchQuery, mode: "insensitive" } } },
-      { category: { name: { contains: searchQuery, mode: "insensitive" } } },
-    ];
-  } else if (categoryKey === "sale") {
+  if (categoryKey === "sale") {
     whereClause.compareAtPrice = { not: null };
   } else if (categoryKey === "premium") {
     whereClause.brandId = null;
@@ -143,6 +136,16 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
     whereClause.brandId = { not: null };
   } else if (categoryKey === "clothes" || categoryKey === "accessories") {
     whereClause.id = "force-empty-result";
+  }
+
+  // Global Search Query Filter
+  if (searchQuery) {
+    whereClause.OR = [
+      { name: { contains: searchQuery, mode: "insensitive" } },
+      { description: { contains: searchQuery, mode: "insensitive" } },
+      { brand: { name: { contains: searchQuery, mode: "insensitive" } } },
+      { category: { name: { contains: searchQuery, mode: "insensitive" } } },
+    ];
   }
 
   // Dynamic Sidebar Filter Mapping
