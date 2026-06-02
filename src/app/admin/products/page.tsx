@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { createProduct, updateProductStatus, updateVariantStock } from "../actions";
 import ProductPhotoInputs from "./ProductPhotoInputs";
 import DeleteProductButton from "./DeleteProductButton";
+import Pagination from "@/components/ui/Pagination";
 
 function money(value: unknown) {
   return `$${Number(value || 0).toFixed(2)}`;
@@ -15,9 +16,19 @@ function money(value: unknown) {
 const productStatuses = ["DRAFT", "PUBLISHED", "ARCHIVED"];
 const genderTargets = ["MEN", "WOMEN", "KIDS"];
 
-export default async function AdminProductsPage() {
-  const [products, brands, categories] = await Promise.all([
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function AdminProductsPage({ searchParams }: Props) {
+  const resolvedParams = await searchParams;
+  const page = Number(resolvedParams.page) || 1;
+  const ITEMS_PER_PAGE = 24;
+
+  const [products, totalCount, brands, categories] = await Promise.all([
     prisma.product.findMany({
+      skip: (page - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
       include: {
         brand: true,
         category: true,
@@ -26,9 +37,12 @@ export default async function AdminProductsPage() {
       },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.product.count(),
     prisma.brand.findMany({ orderBy: { name: "asc" } }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
@@ -208,6 +222,8 @@ export default async function AdminProductsPage() {
               </article>
             );
           })}
+          
+          <Pagination totalPages={totalPages} />
         </div>
       </section>
     </div>

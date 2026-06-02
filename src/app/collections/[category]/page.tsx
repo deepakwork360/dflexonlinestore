@@ -7,6 +7,7 @@ import { Sparkles, Tag, ShoppingBag, ArrowRight } from "lucide-react";
 import FilterSidebar from "@/components/ui/products/FilterSidebar";
 import MobileFilterDrawer from "@/components/ui/products/MobileFilterDrawer";
 import WishlistButton from "@/components/ui/products/WishlistButton";
+import Pagination from "@/components/ui/Pagination";
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -18,6 +19,7 @@ interface Props {
     size?: string;
     priceRange?: string;
     onSale?: string;
+    page?: string;
   }>;
 }
 
@@ -133,6 +135,8 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
       { brand: { name: { contains: searchQuery, mode: "insensitive" } } },
       { category: { name: { contains: searchQuery, mode: "insensitive" } } },
     ];
+  } else if (categoryKey === "sale") {
+    whereClause.compareAtPrice = { not: null };
   } else if (categoryKey === "premium") {
     whereClause.brandId = null;
   } else if (categoryKey === "brands") {
@@ -196,16 +200,42 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
   };
 
   // Limit to top 20 latest added shoes for the New arrivals collection
+  const page = Number(resolvedSearch.page) || 1;
+  const ITEMS_PER_PAGE = 48;
+
   if (categoryKey === "new") {
     queryOptions.take = 20;
+  } else {
+    queryOptions.skip = (page - 1) * ITEMS_PER_PAGE;
+    queryOptions.take = ITEMS_PER_PAGE;
   }
 
-  const products = await prisma.product.findMany(queryOptions);
+  const [products, totalCount] = await Promise.all([
+    prisma.product.findMany(queryOptions),
+    prisma.product.count({ where: whereClause }),
+  ]);
+
+  const totalPages = categoryKey === "new" ? 1 : Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Fetch filter dropdown options dynamically from the DB to show accurate choices
   const dbBrands = await prisma.brand.findMany({ orderBy: { name: "asc" } });
   const dbCategories = await prisma.category.findMany({ orderBy: { name: "asc" } });
   const dbSizes = await prisma.size.findMany({ orderBy: { value: "asc" } });
+
+  // URL Builder for preserving all active query params (gender, onSale, etc.) when clicking brand pills
+  const buildBrandUrl = (brandSlug: string | null) => {
+    const params = new URLSearchParams();
+    Object.entries(resolvedSearch).forEach(([key, value]) => {
+      if (key !== "brand" && key !== "page" && value !== undefined) {
+        params.set(key, String(value));
+      }
+    });
+    if (brandSlug) {
+      params.set("brand", brandSlug);
+    }
+    const queryString = params.toString();
+    return `/collections/${categoryKey}${queryString ? `?${queryString}` : ""}`;
+  };
 
   return (
     <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-16">
@@ -263,8 +293,8 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           </div>
         </div>
 
-        {/* Interactive Brand Selection Strip for /collections/brands */}
-        {categoryKey === "brands" && (
+        {/* Interactive Brand Selection Strip */}
+        {["brands", "new", "clothes", "shoes", "accessories", "sale"].includes(categoryKey) && (
           <div className="mb-10 w-full select-none ml-5 pr-5">
             <span className="text-[11px] font-black uppercase tracking-[0.22em] text-neutral-850 dark:text-neutral-200 block mb-4.5 font-sans">
               Filter by Official Brand Partner
@@ -272,7 +302,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pb-2 flex-nowrap w-full">
               {/* Show All Reset Button */}
               <Link
-                href="/collections/brands"
+                href={buildBrandUrl(null)}
                 scroll={false}
                 className={`flex-shrink-0 inline-flex items-center justify-center px-6 py-3 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border ${
                   !selectedBrand
@@ -290,7 +320,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                 return (
                   <Link
                     key={brand.id}
-                    href={`/collections/brands?brand=${brand.slug}`}
+                    href={buildBrandUrl(brand.slug)}
                     scroll={false}
                     className={`flex-shrink-0 inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border ${
                       isActive
@@ -489,6 +519,8 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
                 })}
               </div>
             )}
+            
+            <Pagination totalPages={totalPages} />
 
           </div>
 

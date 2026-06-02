@@ -84,6 +84,22 @@ async function uploadedBrandLogoValue(formData: FormData) {
   return response.secure_url;
 }
 
+async function uploadedBrandCoverValue(formData: FormData) {
+  const file = formData.get("imageFile");
+
+  if (!(file instanceof File) || file.size === 0 || !file.type.startsWith("image/")) {
+    return null;
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const response = await cloudinary.uploader.upload(base64Image, {
+    folder: "brands",
+  });
+
+  return response.secure_url;
+}
+
 async function uploadedReviewImageValues(formData: FormData) {
   const files = Array.from({ length: 5 }, (_, index) => formData.get(`photo${index + 1}`))
     .filter((value): value is File => value instanceof File && value.size > 0)
@@ -375,6 +391,7 @@ export async function createBrand(formData: FormData) {
   const name = textValue(formData, "name");
   const description = optionalTextValue(formData, "description");
   const logo = (await uploadedBrandLogoValue(formData)) || optionalTextValue(formData, "logo");
+  const image = (await uploadedBrandCoverValue(formData)) || optionalTextValue(formData, "image");
 
   if (!name) {
     throw new Error("Brand name is required.");
@@ -386,6 +403,7 @@ export async function createBrand(formData: FormData) {
       slug: await uniqueBrandSlug(name),
       description,
       logo,
+      image,
     },
   });
 
@@ -404,7 +422,15 @@ export async function updateBrand(formData: FormData) {
   const name = textValue(formData, "name");
   const description = optionalTextValue(formData, "description");
   const currentLogo = optionalTextValue(formData, "currentLogo");
-  const logo = (await uploadedBrandLogoValue(formData)) || optionalTextValue(formData, "logo") || currentLogo;
+  const currentImage = optionalTextValue(formData, "currentImage");
+  
+  const formLogo = formData.get("logo") as string | null;
+  const logoUpload = await uploadedBrandLogoValue(formData);
+  const logo = logoUpload || (formLogo !== null ? (formLogo || null) : currentLogo);
+
+  const formImage = formData.get("image") as string | null;
+  const imageUpload = await uploadedBrandCoverValue(formData);
+  const image = imageUpload || (formImage !== null ? (formImage || null) : currentImage);
 
   if (!brandId || !name) {
     throw new Error("Brand and brand name are required.");
@@ -428,6 +454,7 @@ export async function updateBrand(formData: FormData) {
       slug,
       description,
       logo,
+      image,
     },
   });
 
@@ -668,10 +695,14 @@ export async function updateOrderStatus(formData: FormData) {
 
 export async function upsertStoreSetting(formData: FormData) {
   const key = textValue(formData, "key");
-  const value = textValue(formData, "value");
-  const isActive = formData.get("isActive") === "on";
+  const values = formData.getAll("value").filter((v) => typeof v === "string" && v.toString().trim().length > 0) as string[];
+  const value = values.length > 1 ? values.join(",") : values[0] || "";
+  const isActiveStr = formData.get("isActive") as string | null;
+  const isActive = isActiveStr === "on" || isActiveStr === "true";
 
-  if (!key || !value) {
+  const isFlagshipOrBrands = key.startsWith("flagship_") || key.startsWith("brands_");
+
+  if (!key || (!value && !isFlagshipOrBrands)) {
     throw new Error("Setting key and value are required.");
   }
 

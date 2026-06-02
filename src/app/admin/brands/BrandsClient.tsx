@@ -15,6 +15,7 @@ interface BrandItem {
   slug: string;
   description: string | null;
   logo: string | null;
+  image: string | null;
   productCount: number;
   fallbackImage: string | null;
 }
@@ -28,6 +29,7 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
   const [editingBrand, setEditingBrand] = useState<BrandItem | null>(null);
   const [name, setName] = useState("");
   const [logo, setLogo] = useState("");
+  const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -35,6 +37,7 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
     setEditingBrand(brand);
     setName(brand.name);
     setLogo(brand.logo || "");
+    setImage(brand.image || "");
     setDescription(brand.description || "");
   };
 
@@ -42,6 +45,7 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
     setEditingBrand(null);
     setName("");
     setLogo("");
+    setImage("");
     setDescription("");
   };
 
@@ -116,6 +120,7 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
               <>
                 <input type="hidden" name="brandId" value={editingBrand.id} />
                 <input type="hidden" name="currentLogo" value={editingBrand.logo || ""} />
+                <input type="hidden" name="currentImage" value={editingBrand.image || ""} />
               </>
             ) : null}
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
@@ -129,26 +134,51 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
                 placeholder="Nike"
               />
             </label>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              Logo / Cover Upload
-              <Input
-                name="logoFile"
-                type="file"
-                accept="image/*"
-                className="mt-1 h-auto cursor-pointer bg-white py-2 text-xs file:mr-3 file:rounded-md file:bg-neutral-950 file:px-3 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
-              />
-            </label>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-              Logo / Cover URL
-              <Input
-                name="logo"
-                type="url"
-                value={logo}
-                onChange={(event) => setLogo(event.target.value)}
-                className="mt-1 h-10 bg-white"
-                placeholder="https://..."
-              />
-            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Vector Logo Upload
+                <Input
+                  name="logoFile"
+                  type="file"
+                  accept="image/*"
+                  className="mt-1 h-auto cursor-pointer bg-white py-2 text-xs file:mr-3 file:rounded-md file:bg-neutral-950 file:px-3 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
+                />
+              </label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Logo URL
+                <Input
+                  name="logo"
+                  type="url"
+                  value={logo}
+                  onChange={(event) => setLogo(event.target.value)}
+                  className="mt-1 h-10 bg-white"
+                  placeholder="https://..."
+                />
+              </label>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Editorial Cover Upload
+                <Input
+                  name="imageFile"
+                  type="file"
+                  accept="image/*"
+                  className="mt-1 h-auto cursor-pointer bg-white py-2 text-xs file:mr-3 file:rounded-md file:bg-neutral-950 file:px-3 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
+                />
+              </label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                Cover URL
+                <Input
+                  name="image"
+                  type="url"
+                  value={image}
+                  onChange={(event) => setImage(event.target.value)}
+                  className="mt-1 h-10 bg-white"
+                  placeholder="https://..."
+                />
+              </label>
+            </div>
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
               Description
               <textarea
@@ -182,14 +212,14 @@ export default function BrandsClient({ initialBrands }: { initialBrands: BrandIt
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {initialBrands.map((brand) => {
-                const image = brand.logo || brand.fallbackImage;
+                const coverImage = brand.image || brand.fallbackImage;
 
                 return (
                   <article key={brand.id} className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
                     <div className="relative aspect-[4/3] bg-neutral-100">
-                      {image ? (
+                      {coverImage ? (
                         <Image
-                          src={image}
+                          src={coverImage}
                           alt={`${brand.name} brand image`}
                           fill
                           sizes="(max-width: 1280px) 50vw, 25vw"

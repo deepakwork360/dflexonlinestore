@@ -10,6 +10,9 @@ const defaults = [
   { key: "flagship_men_slug", label: "Men's Flagship Product" },
   { key: "flagship_women_slug", label: "Women's Flagship Product" },
   { key: "flagship_kids_slug", label: "Kids' Flagship Product" },
+  { key: "brands_men", label: "Men's 'Shop By Brand' Display" },
+  { key: "brands_women", label: "Women's 'Shop By Brand' Display" },
+  { key: "brands_kids", label: "Kids' 'Shop By Brand' Display" },
 ];
 
 export default async function AdminSettingsPage() {
@@ -21,7 +24,13 @@ export default async function AdminSettingsPage() {
     select: { name: true, slug: true, gender: true },
     orderBy: { name: "asc" },
   });
-  return (
+
+  const allBrands = await prisma.brand.findMany({
+    select: { id: true, name: true, slug: true, logo: true },
+    orderBy: { name: "asc" },
+  });
+
+  return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-10 flex items-center justify-between border-b border-neutral-200 pb-6">
         <div>
@@ -37,6 +46,7 @@ export default async function AdminSettingsPage() {
         {defaults.map((item) => {
           const setting = settingMap.get(item.key);
           const isFlagship = item.key.startsWith("flagship_");
+          const isBrandSelect = item.key.startsWith("brands_");
 
           let filteredProducts = products;
           if (item.key === "flagship_men_slug") {
@@ -46,6 +56,8 @@ export default async function AdminSettingsPage() {
           } else if (item.key === "flagship_kids_slug") {
             filteredProducts = products.filter((p) => p.gender === "KIDS");
           }
+
+          const selectedBrandSlugs = isBrandSelect && setting?.value ? setting.value.split(",") : [];
 
           return (
             <form 
@@ -61,7 +73,7 @@ export default async function AdminSettingsPage() {
                     {item.label}
                   </label>
                   <p className="text-[10px] text-neutral-500 font-bold mt-1.5 uppercase tracking-widest">
-                     {isFlagship ? "Storefront Spotlight" : "Global Config"}
+                     {isFlagship ? "Storefront Spotlight" : isBrandSelect ? "Brand Curation" : "Global Config"}
                   </p>
                 </div>
                 
@@ -80,6 +92,26 @@ export default async function AdminSettingsPage() {
                         </option>
                       ))}
                     </select>
+                  ) : isBrandSelect ? (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {allBrands.map((brand) => (
+                        <label
+                          key={brand.id}
+                          className="group/brand relative flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-neutral-900 has-[:checked]:border-neutral-900 has-[:checked]:bg-neutral-900 has-[:checked]:text-white"
+                        >
+                          <input
+                            type="checkbox"
+                            name="value"
+                            value={brand.slug}
+                            defaultChecked={selectedBrandSlugs.includes(brand.slug)}
+                            className="peer sr-only"
+                          />
+                          <span className="text-[10px] font-bold uppercase tracking-widest transition-colors group-hover/brand:text-neutral-900 group-has-[:checked]/brand:text-white truncate">
+                            {brand.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   ) : (
                     <Input 
                       name="value" 
