@@ -29,6 +29,7 @@ export default async function AdminBrandsPage() {
     slug: brand.slug,
     description: brand.description,
     logo: brand.logo,
+    image: brand.image,
     productCount: brand._count.products,
     fallbackImage: brand.products[0]?.images[0]?.url || null,
   }));

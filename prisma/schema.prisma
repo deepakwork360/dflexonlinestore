@@ -129,6 +129,7 @@ model Brand {
   slug        String   @unique
   description String?
   logo        String?
+  image       String?  // Added for massive editorial cover photos on homepage
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

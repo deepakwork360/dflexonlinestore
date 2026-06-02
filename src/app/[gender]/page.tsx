@@ -260,31 +260,52 @@ export default async function GenderCollectionPage({ params }: Props) {
     })
     .slice(0, 6);
 
-  const brandCards = await prisma.brand.findMany({
-    include: {
-      products: {
-        where: {
-          gender: dbGender,
-        },
-        include: {
-          images: {
-            orderBy: {
-              sortOrder: "asc",
-            },
-            take: 1,
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1,
-      },
-    },
-    orderBy: {
-      name: "asc",
-    },
-    take: 5,
+  const brandsSettingKey = `brands_${genderKey}`;
+  const brandsSetting = await prisma.storeSetting.findUnique({
+    where: { key: brandsSettingKey },
   });
+
+  const selectedBrandSlugs = brandsSetting?.isActive && brandsSetting.value 
+    ? brandsSetting.value.split(",") 
+    : [];
+
+  let brandCards: any[] = [];
+
+  if (selectedBrandSlugs.length > 0) {
+    const fetchedBrands = await prisma.brand.findMany({
+      where: { slug: { in: selectedBrandSlugs } },
+      include: {
+        products: {
+          include: {
+            images: { orderBy: { sortOrder: "asc" }, take: 1 },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+    
+    // Sort based on the exact configuration array order
+    brandCards = selectedBrandSlugs
+      .map((slug) => fetchedBrands.find((b) => b.slug === slug))
+      .filter(Boolean)
+      .slice(0, 6);
+  } else {
+    // Fallback: fetch top 6 brands alphabetically
+    brandCards = await prisma.brand.findMany({
+      include: {
+        products: {
+          include: {
+            images: { orderBy: { sortOrder: "asc" }, take: 1 },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+      orderBy: { name: "asc" },
+      take: 6,
+    });
+  }
 
   return (
     <main className="w-full bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50 min-h-screen pb-0 relative overflow-hidden">
@@ -687,30 +708,33 @@ export default async function GenderCollectionPage({ params }: Props) {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-6">
-          {brandCards.map((brand) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+          {brandCards.map((brand, idx) => {
             const imageUrl =
-              brand.logo ||
+              brand.image ||
               brand.products[0]?.images[0]?.url ||
               "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1200&auto=format&fit=crop";
+
+            // If 6 brands are loaded, selectively hide the 6th brand on md screens and above to maintain the 5-column layout
+            const visibilityClass = idx === 5 ? "block md:hidden" : "block";
 
             return (
               <Link
                 key={brand.id}
                 href={`/collections/shoes?gender=${genderKey}&brand=${brand.slug}`}
-                className="group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10"
+                className={`group relative overflow-hidden rounded-sm aspect-[4/5] w-full flex flex-col justify-end p-5 text-left bg-neutral-900 shadow-md border border-neutral-200/10 ${visibilityClass}`}
               >
                 {/* Background Image */}
                 <Image
                   src={imageUrl}
                   alt={`${brand.name} collection`}
                   fill
-                  sizes="(max-w-768px) 50vw, 20vw"
+                  sizes="(max-w-768px) 50vw, (max-w-1024px) 33vw, 20vw"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
                 />
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/95" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/100" />
 
                 {/* Text Layer */}
                 <div className="relative z-10 space-y-1">
