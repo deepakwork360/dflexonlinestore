@@ -55,7 +55,7 @@ const COLLECTION_METADATA: Record<
     title: "",
     subtitle: "",
     bg: "from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-950",
-    image: "/images/5.webp",
+    image: "/images/brands.webp",
   },
   premium: {
     title: "",
@@ -69,6 +69,14 @@ const COLLECTION_METADATA: Record<
     bg: "from-rose-50/40 to-neutral-50 dark:from-rose-950/10 dark:to-neutral-950",
     image: "/images/7.webp",
   },
+};
+
+const BRAND_LOGOS: Record<string, string> = {
+  nike: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/nike.svg",
+  adidas: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/adidas.svg",
+  jordan: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jordan.svg",
+  "new-balance": "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/newbalance.svg",
+  puma: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/puma.svg",
 };
 
 export default async function CollectionsPage({ params, searchParams }: Props) {
@@ -90,6 +98,25 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
   }
 
   const meta = COLLECTION_METADATA[categoryKey];
+  let dynamicMeta = { ...meta };
+
+  if (categoryKey === "brands") {
+    if (selectedBrand) {
+      const activeBrand = await prisma.brand.findUnique({
+        where: { slug: selectedBrand }
+      });
+      if (activeBrand) {
+        dynamicMeta.title = activeBrand.name;
+        dynamicMeta.subtitle = activeBrand.description || `Explore our exclusive selection of authentic ${activeBrand.name} footwear.`;
+        if (activeBrand.logo) {
+          dynamicMeta.image = activeBrand.logo;
+        }
+      }
+    } else {
+      dynamicMeta.title = "";
+      dynamicMeta.subtitle = "";
+    }
+  }
 
   // Dynamic DB Query Construction
   const whereClause: any = {};
@@ -107,7 +134,9 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
       { category: { name: { contains: searchQuery, mode: "insensitive" } } },
     ];
   } else if (categoryKey === "premium") {
-    whereClause.price = { gte: 150 };
+    whereClause.brandId = null;
+  } else if (categoryKey === "brands") {
+    whereClause.brandId = { not: null };
   } else if (categoryKey === "clothes" || categoryKey === "accessories") {
     whereClause.id = "force-empty-result";
   }
@@ -184,18 +213,18 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
       <section className="relative w-full h-[200px] md:h-[45vh] overflow-hidden flex items-center justify-center text-center">
         <div className="absolute inset-0 z-10 bg-black/40 md:bg-black/25" />
         <Image
-          src={meta.image || "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1600&auto=format&fit=crop"}
-          alt={meta.title}
+          src={dynamicMeta.image || "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1600&auto=format&fit=crop"}
+          alt={dynamicMeta.title}
           fill
           priority
           className="object-cover object-center select-none"
         />
         <div className="relative z-20 mx-auto max-w-4xl px-4 text-white">
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-widest text-white leading-tight font-sans">
-            {searchQuery ? `"${searchQuery}"` : meta.title}
+            {searchQuery ? `"${searchQuery}"` : dynamicMeta.title}
           </h1>
           <p className="mt-3 max-w-xl mx-auto text-xs md:text-sm text-neutral-200 leading-relaxed font-medium">
-            {searchQuery ? `Showing matched sneakers for query: "${searchQuery}"` : meta.subtitle}
+            {searchQuery ? `Showing matched sneakers for query: "${searchQuery}"` : dynamicMeta.subtitle}
           </p>
         </div>
       </section>
@@ -208,7 +237,7 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           </Link>
           <span>/</span>
           <span className="text-neutral-800">
-            {searchQuery ? "Search" : meta.title}
+            {searchQuery ? "Search" : dynamicMeta.title}
           </span>
         </div>
         <a href="javascript:history.back()" className="hover:text-black transition-colors flex items-center gap-1 cursor-pointer">
@@ -234,6 +263,73 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
           </div>
         </div>
 
+        {/* Interactive Brand Selection Strip for /collections/brands */}
+        {categoryKey === "brands" && (
+          <div className="mb-10 w-full select-none ml-5 pr-5">
+            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-neutral-850 dark:text-neutral-200 block mb-4.5 font-sans">
+              Filter by Official Brand Partner
+            </span>
+            <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pb-2 flex-nowrap w-full">
+              {/* Show All Reset Button */}
+              <Link
+                href="/collections/brands"
+                scroll={false}
+                className={`flex-shrink-0 inline-flex items-center justify-center px-6 py-3 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border ${
+                  !selectedBrand
+                    ? "bg-neutral-950 text-white border-neutral-950 dark:bg-white dark:text-black dark:border-white shadow-md scale-102"
+                    : "bg-white text-neutral-800 border-neutral-200 hover:border-neutral-950 dark:bg-neutral-900 dark:text-neutral-200 dark:border-neutral-800 dark:hover:border-white"
+                }`}
+              >
+                Show All
+              </Link>
+              {/* Individual Brand Buttons */}
+              {dbBrands.map((brand: any) => {
+                const isActive = selectedBrand === brand.slug;
+                const logoUrl = BRAND_LOGOS[brand.slug.toLowerCase()];
+
+                return (
+                  <Link
+                    key={brand.id}
+                    href={`/collections/brands?brand=${brand.slug}`}
+                    scroll={false}
+                    className={`flex-shrink-0 inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 border ${
+                      isActive
+                        ? "bg-neutral-950 text-white border-neutral-950 dark:bg-white dark:text-black dark:border-white shadow-md scale-102"
+                        : "bg-white text-neutral-800 border-neutral-200 hover:border-neutral-950 dark:bg-neutral-900 dark:text-neutral-200 dark:border-neutral-800 dark:hover:border-white"
+                    }`}
+                  >
+                    {logoUrl ? (
+                      <div className="relative h-4.5 w-6.5 flex items-center justify-center shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={logoUrl}
+                          alt={brand.name}
+                          className={`h-4 w-auto object-contain transition-all duration-300 ${
+                            isActive
+                              ? "invert dark:invert-0"
+                              : "dark:invert opacity-75 group-hover:opacity-100"
+                          }`}
+                        />
+                      </div>
+                    ) : brand.logo ? (
+                      <div className="relative h-4 w-4 overflow-hidden rounded-full shrink-0 bg-neutral-100 border border-neutral-200/50">
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          fill
+                          sizes="16px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <span>{brand.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           
           {/* Left Column: Interactive Filter Sidebar (Sticky, Left Corner, ml-5) - hidden on mobile, inline on desktop */}
@@ -253,14 +349,14 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
             {/* Empty States */}
             {products.length === 0 ? (
               <div className="text-center py-20 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 max-w-3xl mx-auto">
-                {meta.isEmptyPlaceholder ? (
+                {dynamicMeta.isEmptyPlaceholder ? (
                   <>
                     <ShoppingBag className="mx-auto h-8 w-8 text-neutral-400 dark:text-neutral-500" />
                     <h3 className="mt-4 text-base font-bold text-neutral-900 dark:text-white uppercase tracking-wider">
                       Collection Coming Soon
                     </h3>
                     <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
-                      We are currently crafting a premium catalog for {meta.title.toLowerCase()}. Subscribe to our newsletter or stay tuned for the official drop event!
+                      We are currently crafting a premium catalog for {dynamicMeta.title.toLowerCase()}. Subscribe to our newsletter or stay tuned for the official drop event!
                     </p>
                     <div className="mt-6">
                       <Link href="/collections/shoes" className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-2 text-xs font-bold text-white uppercase tracking-wider hover:bg-neutral-800 transition-all dark:bg-white dark:text-black dark:hover:bg-neutral-200">

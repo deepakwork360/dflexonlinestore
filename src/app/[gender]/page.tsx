@@ -91,7 +91,57 @@ const ESSENTIALS_CONFIG: Record<
   },
 };
 
-
+const STYLE_EDITS_CONFIG: Record<
+  string,
+  {
+    basketball: { image: string; desc: string };
+    lifestyle: { image: string; desc: string };
+    running: { image: string; desc: string };
+  }
+> = {
+  men: {
+    basketball: {
+      image: "https://i.pinimg.com/1200x/c2/a3/ed/c2a3ed00792e074121ccb6334c424ec6.jpg",
+      desc: "High-top court shoes optimized for maximum grip and performance.",
+    },
+    lifestyle: {
+      image: "https://i.pinimg.com/1200x/12/dc/0d/12dc0dd9753589d44b3bcc2fbf737195.jpg",
+      desc: "Casual streetwear builds designed for everyday comfort and clean looks.",
+    },
+    running: {
+      image: "https://i.pinimg.com/736x/cd/68/aa/cd68aa257b0310cc65237e3e3b5b1a27.jpg",
+      desc: "Engineered for high-intensity running and superior everyday speed.",
+    },
+  },
+  women: {
+    basketball: {
+      image: "https://i.pinimg.com/1200x/04/6e/67/046e671a9c1dc893c3d8f7056a44b782.jpg",
+      desc: "Professional traction and ankle protection crafted for the modern female athlete.",
+    },
+    lifestyle: {
+      image: "https://i.pinimg.com/1200x/2b/75/32/2b75329ccf3bf824847b6d79d177c61f.jpg",
+      desc: "Contemporary, chic street-sneaker silhouettes designed to elevate your daily style.",
+    },
+    running: {
+      image: "https://i.pinimg.com/736x/a5/e7/5f/a5e75f73d8b6b12b48d829e976f75a1b.jpg",
+      desc: "Lightweight, cushioned support tailored for distance run performance and active fitness.",
+    },
+  },
+  kids: {
+    basketball: {
+      image: "https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=1200&auto=format&fit=crop",
+      desc: "Dynamic, colorful high-tops designed to protect young feet during court play.",
+    },
+    lifestyle: {
+      image: "https://i.pinimg.com/736x/c9/a3/0b/c9a30bf96166670487feeb5de72f3f91.jpg",
+      desc: "Fun, vibrant daily shoes that are easy to slip on and off for active school days.",
+    },
+    running: {
+      image: "https://i.pinimg.com/1200x/42/56/60/425660a02a9efe0c9b60614ce8324f41.jpg",
+      desc: "High-flexibility, highly durable runners built to withstand endless playground sprint sessions.",
+    },
+  },
+};
 
 export default async function GenderCollectionPage({ params }: Props) {
   const resolvedParams = await params;
@@ -104,8 +154,45 @@ export default async function GenderCollectionPage({ params }: Props) {
   }
 
   const genderLabel = GENDER_LABELS[genderKey];
-  const flagship = FLAGSHIP_CONFIG[genderKey];
+  
+  // Dynamic flagship resolved from database with design fallbacks
+  const flagshipSettingKey = `flagship_${genderKey}_slug`;
+  const flagshipSetting = await prisma.storeSetting.findUnique({
+    where: { key: flagshipSettingKey },
+  });
+
+  let flagship = {
+    ...FLAGSHIP_CONFIG[genderKey],
+    link: `/collections/shoes?gender=${genderKey}`,
+  };
+
+  if (flagshipSetting?.isActive && flagshipSetting.value) {
+    const product = await prisma.product.findUnique({
+      where: { slug: flagshipSetting.value },
+      include: {
+        images: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+        },
+      },
+    });
+
+    if (product) {
+      const primaryImg = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
+      flagship = {
+        title: product.name,
+        description: product.description,
+        price: product.price.toString(),
+        image: primaryImg || FLAGSHIP_CONFIG[genderKey].image,
+        tag: `${genderKey.charAt(0).toUpperCase() + genderKey.slice(1)}'s Flagship`,
+        link: `/products/${product.slug}`,
+      };
+    }
+  }
+
   const essentials = ESSENTIALS_CONFIG[genderKey];
+  const edits = STYLE_EDITS_CONFIG[genderKey];
   const dbGender = genderKey.toUpperCase() as "MEN" | "WOMEN" | "KIDS";
 
   // Query top 12 latest arrivals for New Collection section (only showcasing active category/gender releases)
@@ -347,7 +434,7 @@ export default async function GenderCollectionPage({ params }: Props) {
               className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
             >
               <Image
-                src="https://i.pinimg.com/1200x/59/ec/49/59ec49e0a6e458ddc23d5f219d242ce6.jpg"
+                src={edits.basketball.image}
                 alt="Basketball Collection"
                 fill
                 sizes="(max-w-1024px) 100vw, 40vw"
@@ -363,7 +450,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                   Basketball
                 </h3>
                 <p className="text-xs text-neutral-300 font-medium leading-relaxed max-w-sm">
-                  High-top court shoes optimized for maximum grip and performance.
+                  {edits.basketball.desc}
                 </p>
                 <div className="pt-2">
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 group-hover:text-rose-400 transition-colors">
@@ -379,7 +466,7 @@ export default async function GenderCollectionPage({ params }: Props) {
               className="flex-1 relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[280px] block"
             >
               <Image
-                src="https://i.pinimg.com/1200x/18/d3/88/18d3880e3fb4006876f1e5268517ce15.jpg"
+                src={edits.lifestyle.image}
                 alt="Lifestyle Collection"
                 fill
                 sizes="(max-w-1024px) 100vw, 40vw"
@@ -395,7 +482,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                   Lifestyle
                 </h3>
                 <p className="text-xs text-neutral-300 font-medium leading-relaxed max-w-sm">
-                  Casual streetwear builds designed for everyday comfort and clean looks.
+                  {edits.lifestyle.desc}
                 </p>
                 <div className="pt-2">
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white border-b-2 border-rose-500 pb-0.5 group-hover:text-rose-400 transition-colors">
@@ -412,7 +499,7 @@ export default async function GenderCollectionPage({ params }: Props) {
             className="w-full lg:w-[58%] relative overflow-hidden rounded-sm bg-neutral-900 border border-neutral-200/10 shadow-lg group min-h-[400px] lg:h-full block"
           >
             <Image
-              src="https://i.pinimg.com/1200x/cd/68/aa/cd68aa257b0310cc65237e3e3b5b1a27.jpg"
+              src={edits.running.image}
               alt="Running Collection"
               fill
               sizes="(max-w-1024px) 100vw, 60vw"
@@ -431,7 +518,7 @@ export default async function GenderCollectionPage({ params }: Props) {
                 </h3>
               </div>
               <p className="text-xs sm:text-sm text-neutral-300 font-medium leading-relaxed max-w-lg">
-                Engineered for high-intensity running and superior everyday speed. Featuring ultra-breathable mesh fabrics, advanced sole mechanics, and responsive premium cushions.
+                {edits.running.desc}
               </p>
               <div className="pt-2">
                 <span className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all group-hover:bg-neutral-100 group-hover:scale-105 active:scale-95">
@@ -720,38 +807,53 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
       </section>
 
-      {/* 4. flagship Spotlight Section */}
-      <section className="mx-auto max-w-screen w-full px-4 sm:px-6 lg:px-12 xl:px-16 mb-20">
-        <div className="relative overflow-hidden rounded-3xl bg-neutral-950 text-white min-h-[400px] flex flex-col md:flex-row border border-neutral-900 shadow-xl">
-          <div className="md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center space-y-6 text-left relative z-10 bg-neutral-950">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-600/20 px-3 py-1 text-[10px] font-bold text-rose-500 uppercase tracking-widest border border-rose-500/25 w-max">
-              {flagship.tag}
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight leading-none font-sans">
-              {flagship.title}
+      {/* 4. Flagship Spotlight Section */}
+      <section className="mx-auto max-w-screen w-full px-4 sm:px-6 lg:px-12 xl:px-16 mb-24">
+        <div className="group relative flex flex-col md:flex-row overflow-hidden rounded-[2rem] bg-neutral-950 border border-neutral-900 shadow-2xl transition-all hover:shadow-neutral-900/30 min-h-[400px]">
+          
+          {/* Text Content Block (Dark Theme) */}
+          <div className="md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center space-y-5 text-left relative z-20">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 bg-rose-500"></span>
+              <span className="text-[10px] font-black text-rose-500 uppercase tracking-[0.25em]">
+                {flagship.tag}
+              </span>
+            </div>
+            
+            {/* Title: Reduced size, forced lowercase then capitalized, and strictly 2 lines */}
+            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight leading-[1.05] text-white font-sans line-clamp-2 capitalize">
+              {flagship.title.toLowerCase()}
             </h2>
-            <p className="text-xs sm:text-sm text-neutral-300 font-medium leading-relaxed max-w-md">
+            
+            <p className="text-sm sm:text-base text-neutral-400 font-medium leading-relaxed max-w-md line-clamp-3">
               {flagship.description}
             </p>
-            <div className="pt-2">
+            
+            <div className="pt-6">
               <Link
-                href={`/collections/shoes?gender=${genderKey}`}
-                className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-neutral-100 hover:scale-105 active:scale-95"
+                href={flagship.link}
+                className="group/btn inline-flex items-center justify-center gap-4 rounded-full bg-white px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg transition-all hover:bg-neutral-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
               >
-                Buy Now — ${flagship.price}
+                <span>Shop Now</span>
+                <span className="h-1 w-1 rounded-full bg-rose-500"></span>
+                <span>${Number(flagship.price).toFixed(2)}</span>
               </Link>
             </div>
           </div>
-          <div className="md:w-1/2 relative min-h-[300px] md:min-h-full">
-            <Image
-              src={flagship.image}
-              alt={`${flagship.title} Flagship Showcase`}
-              fill
-              sizes="(max-w-768px) 100vw, 50vw"
-              className="object-cover select-none"
-              style={{ objectPosition: "50% 50%" }}
-            />
+
+          {/* Image Showcase Block (Light Theme to match product background) */}
+          <div className="md:w-1/2 relative min-h-[300px] md:min-h-full flex items-center justify-center p-8 lg:p-12 z-10 bg-white">
+            <div className="relative w-full h-full max-w-[450px] transition-transform duration-700 group-hover:scale-[1.03]">
+              <Image
+                src={flagship.image}
+                alt={`${flagship.title} Flagship Showcase`}
+                fill
+                sizes="(max-w-768px) 100vw, 50vw"
+                className="object-contain select-none"
+              />
+            </div>
           </div>
+          
         </div>
       </section>
 

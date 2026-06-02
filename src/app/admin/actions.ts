@@ -684,6 +684,9 @@ export async function upsertStoreSetting(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/settings");
   revalidatePath("/");
+  revalidatePath("/men");
+  revalidatePath("/women");
+  revalidatePath("/kids");
 }
 
 async function uniqueCategorySlug(name: string, excludedCategoryId?: string) {
