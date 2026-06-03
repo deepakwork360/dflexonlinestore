@@ -21,7 +21,7 @@ const BLOGS_DATA: BlogPost[] = [
     date: "June 01, 2026",
     author: "Atelier Design Team",
     summary: "An in-depth investigation into how we source raw, full-grain Italian calf leathers and combine them with advanced carbon-fiber shanks to achieve our trademark balance of ergonomic comfort and visual precision.",
-    image: "https://i.pinimg.com/736x/d2/0b/a1/d20ba15ff6f5d69efc01f7e270fc184c.jpg",
+    image: "https://i.pinimg.com/736x/73/9a/c5/739ac5b167239ebf5e9d4143636bd98e.jpg",
     readTime: "5 min read"
   },
   {
