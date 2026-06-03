@@ -337,7 +337,7 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
 
         {/* Responsive Grid matching request: Exactly 2 columns on mobile (showing 4 products), 3 on md, 6 on lg */}
-        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
           {newCollectionProducts.map((product: any, idx: number) => {
             const primaryImg = product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url;
             const secondaryImg = product.images.find((img: any) => !img.isPrimary)?.url;
@@ -571,7 +571,7 @@ export default async function GenderCollectionPage({ params }: Props) {
         </div>
 
         {/* Responsive Grid matching request: Exactly identical 6-column premium product grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3.5 gap-y-7 sm:gap-x-5 sm:gap-y-8">
           {bestSellerProducts.map((product: any, idx: number) => {
             const primaryImg = product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url;
             const secondaryImg = product.images.find((img: any) => !img.isPrimary)?.url;

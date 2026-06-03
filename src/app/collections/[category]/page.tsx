@@ -298,11 +298,11 @@ export default async function CollectionsPage({ params, searchParams }: Props) {
 
         {/* Interactive Brand Selection Strip */}
         {["brands", "new", "clothes", "shoes", "accessories", "sale"].includes(categoryKey) && (
-          <div className="mb-10 w-full select-none ml-5 pr-5">
+          <div className="mb-10 w-full select-none">
             <span className="text-[11px] font-black uppercase tracking-[0.22em] text-neutral-850 dark:text-neutral-200 block mb-4.5 font-sans">
               Filter by Official Brand Partner
             </span>
-            <div className="flex items-center gap-3 overflow-x-auto scrollbar-none pb-2 flex-nowrap w-full">
+            <div className="flex items-center gap-3 overflow-x-auto scrollbar-none py-2 px-4 -mx-4 lg:px-8 lg:-mx-8 xl:px-12 xl:-mx-12 flex-nowrap">
               {/* Show All Reset Button */}
               <Link
                 href={buildBrandUrl(null)}
