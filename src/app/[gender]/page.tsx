@@ -867,7 +867,7 @@ export default async function GenderCollectionPage({ params }: Props) {
 
           {/* Image Showcase Block (Light Theme to match product background) */}
           <div className="md:w-1/2 relative min-h-[300px] md:min-h-full flex items-center justify-center p-8 lg:p-12 z-10 bg-white">
-            <div className="relative w-full h-full max-w-[450px] transition-transform duration-700 group-hover:scale-[1.03]">
+            <div className="relative w-full aspect-square md:aspect-auto md:h-full max-w-[450px] transition-transform duration-700 group-hover:scale-[1.03]">
               <Image
                 src={flagship.image}
                 alt={`${flagship.title} Flagship Showcase`}
