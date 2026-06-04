@@ -473,7 +473,7 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={handleApplyCoupon}
                     disabled={isValidatingCoupon}
-                    className="bg-black text-white px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50"
+                    className="bg-black cursor-pointer text-white px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest hover:bg-neutral-800 transition disabled:opacity-50"
                   >
                     {isValidatingCoupon ? "Applying..." : "Apply"}
                   </button>

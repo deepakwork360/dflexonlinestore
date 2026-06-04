@@ -65,7 +65,7 @@ export default function FAQAccordion() {
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full flex items-start gap-4 p-6 text-left focus:outline-hidden"
+                  className="w-full cursor-pointer flex items-start gap-4 p-6 text-left focus:outline-hidden"
                 >
                   {/* Number Indicator */}
                   <span className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 tracking-wider shrink-0 mt-1 select-none">
