@@ -20,7 +20,7 @@ export default function ContactPage() {
     setTimeout(() => {
       setIsSubmitting(false);
       toast.success("Message Sent Successfully!", {
-        description: "Thank you for contacting dflex Store. Our support team will respond within 12 hours.",
+        description: "Thank you for contacting StepAhead Store. Our support team will respond within 12 hours.",
         position: "bottom-center",
       });
       setName("");
@@ -111,7 +111,7 @@ export default function ContactPage() {
                     Atelier Office
                   </h4>
                   <address className="not-italic text-sm font-bold text-neutral-900 leading-snug">
-                    dflex HQ, DLF Phase 3 <br />
+                    StepAhead HQ, DLF Phase 3 <br />
                     Gurugram, HR, India
                   </address>
                 </div>

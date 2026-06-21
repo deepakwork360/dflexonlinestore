@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import MainHeader from "@/components/ui/layout/MainHeader";
 import Footer from "@/components/ui/layout/Footer";
-import { Volkhov } from "next/font/google";
+import { Volkhov, Kanit, Space_Grotesk, Bodoni_Moda, Lilita_One } from "next/font/google";
 import TopAnnouncementBar from "@/components/ui/layout/TopAnnouncementBar";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
@@ -16,6 +16,31 @@ const volkhov = Volkhov({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-sans",
+});
+
+const kanit = Kanit({
+  subsets: ["latin"],
+  weight: ["900"],
+  style: ["italic"],
+  variable: "--font-kanit",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "700"], // Fetch regular and heavy weights
+  variable: "--font-space-grotesk",
+});
+
+const bodoniModa = Bodoni_Moda({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-bodoni",
+});
+
+const lilitaOne = Lilita_One({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-lilita",
 });
 
 
@@ -32,22 +57,22 @@ const geistMono = Geist_Mono({
 import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata: Metadata = {
-  title: "Dflex Online Store",
-  description: "Step into style with Dflex Sneakers. Premium, comfortable, and designed for every step of your journey. Shop men's, women's, and kids' footwear now.",
+  title: "StepAhead Store",
+  description: "Step into style with StepAhead Sneakers. Premium, comfortable, and designed for every step of your journey. Shop men's, women's, and kids' footwear now.",
   icons: {
     icon: "/logo.png",
   },
   openGraph: {
-    title: "Dflex Online Store",
-    description: "Step into style with Dflex Sneakers. Premium, comfortable, and designed for every step of your journey. Shop men's, women's, and kids' footwear now.",
-    url: "https://dflex.vercel.app",
-    siteName: "Dflex Online Store",
+    title: "StepAhead Store",
+    description: "Step into style with StepAhead Sneakers. Premium, comfortable, and designed for every step of your journey. Shop men's, women's, and kids' footwear now.",
+    url: "https://stepahead.vercel.app",
+    siteName: "StepAhead Store",
     images: [
       {
         url: "/logo.png",
         width: 800,
         height: 600,
-        alt: "Dflex Online Store",
+        alt: "StepAhead Store",
       },
     ],
     locale: "en_US",
@@ -76,7 +101,7 @@ export default function RootLayout({
     >
       <html
         lang="en"
-        className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, "font-sans",)}
+        className={cn("h-full", "antialiased", volkhov.variable, geistMono.variable, kanit.variable, spaceGrotesk.variable, bodoniModa.variable, lilitaOne.variable, "font-sans",)}
       >
         <body className="min-h-full flex flex-col">
         <WishlistProvider>

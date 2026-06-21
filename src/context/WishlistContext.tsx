@@ -31,7 +31,7 @@ interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
-const STORAGE_KEY = "dflex_wishlist";
+const STORAGE_KEY = "stepahead_wishlist";
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);

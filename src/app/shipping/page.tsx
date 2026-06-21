@@ -35,7 +35,7 @@ export default function ShippingPage() {
         <div className="space-y-8 text-neutral-600 text-xs sm:text-sm leading-relaxed font-medium">
           
           <p className="text-neutral-950 font-serif italic text-sm sm:text-base border-l-2 border-[#B61C38] pl-4 py-0.5">
-            At dflex Store, we treat logistics as an extension of our craftsmanship. From our atelier inspection tables to your doorstep, we manage each parcel with absolute care.
+            At StepAhead Store, we treat logistics as an extension of our craftsmanship. From our atelier inspection tables to your doorstep, we manage each parcel with absolute care.
           </p>
 
           {/* Section 1 */}
@@ -44,7 +44,7 @@ export default function ShippingPage() {
               1. Atelier Processing Windows
             </h3>
             <p>
-              Every dflex sneaker undergoes rigorous structural and material inspection before being packed into our bespoke, post-consumer recycled boxes. Due to this handcrafted quality assurance cycle, please allow <strong>1-2 business days</strong> for order processing and packaging. During premium drop releases, processing can occasionally take up to 3 business days.
+              Every StepAhead sneaker undergoes rigorous structural and material inspection before being packed into our bespoke, post-consumer recycled boxes. Due to this handcrafted quality assurance cycle, please allow <strong>1-2 business days</strong> for order processing and packaging. During premium drop releases, processing can occasionally take up to 3 business days.
             </p>
           </div>
 

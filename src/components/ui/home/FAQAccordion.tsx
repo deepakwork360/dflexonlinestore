@@ -12,7 +12,7 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     number: "01",
-    question: "Are all sneakers sold on Dflex 100% authentic?",
+    question: "Are all sneakers sold on StepAhead 100% authentic?",
     answer: "Yes, every pair of sneakers is thoroughly inspected and verified 100% authentic by our team of specialists before shipping. We source directly from official brand manufacturers and authorized elite partners to guarantee absolute authenticity."
   },
   {

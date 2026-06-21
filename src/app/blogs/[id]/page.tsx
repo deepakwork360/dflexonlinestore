@@ -30,7 +30,7 @@ const DETAILED_BLOGS: Record<string, BlogPostDetails> = {
     author: "Atelier Design Team",
     image: "https://i.pinimg.com/736x/d2/0b/a1/d20ba15ff6f5d69efc01f7e270fc184c.jpg",
     readTime: "5 min read",
-    intro: "For centuries, the finest cordwainers have recognized that the true character of footwear is determined not by its surface, but by the integrity of its structural foundation. In this editorial, we peel back the layers to discuss our selection of premium full-grain Italian leathers and the carbon-fiber architecture engineered inside every dflex sneaker.",
+    intro: "For centuries, the finest cordwainers have recognized that the true character of footwear is determined not by its surface, but by the integrity of its structural foundation. In this editorial, we peel back the layers to discuss our selection of premium full-grain Italian leathers and the carbon-fiber architecture engineered inside every StepAhead sneaker.",
     content: [
       {
         sectionTitle: "1. The Raw Material: Sourcing Italian Calf Leathers",
@@ -43,15 +43,15 @@ const DETAILED_BLOGS: Record<string, BlogPostDetails> = {
       {
         sectionTitle: "2. The Carbon-Fiber Shank: Internal Structural Engineering",
         paragraphs: [
-          "While premium leather forms the outer envelope, the architectural backbone of a dflex sneaker lies hidden underneath the footbed. Traditional sneakers utilize simple foam midsoles that compress rapidly, leading to arch strain and foot fatigue. We solve this by embedding a high-tensile carbon-fiber shank plate between the outsole and midsole.",
+          "While premium leather forms the outer envelope, the architectural backbone of a StepAhead sneaker lies hidden underneath the footbed. Traditional sneakers utilize simple foam midsoles that compress rapidly, leading to arch strain and foot fatigue. We solve this by embedding a high-tensile carbon-fiber shank plate between the outsole and midsole.",
           "Our shanks are molded from aerospace-grade carbon weave, providing active torsion rigidity. When your foot strikes the ground, the carbon shank prevents lateral twisting while actively storing and returning impact energy on toe-off. The result is a smooth, energetic stride that dramatically reduces load-fatigue over long hours of active wear."
         ]
       },
       {
         sectionTitle: "3. Hand-Stitched Reinforcements & Final Finish",
         paragraphs: [
-          "No machine can match the precision of an experienced artisan. Every structural seam on a dflex sneaker is reinforced by hand with double-bonded nylon threads, ensuring complete resistance to high wear and shear stress.",
-          "Finally, each sneaker is treated with a hand-applied organic finish that protects the leather against water droplets and daily dust while leaving its soft natural touch intact. When you unbox a dflex sneaker, you are holding the accumulation of dozens of hours of architectural planning, material selection, and deliberate hand craftsmanship."
+          "No machine can match the precision of an experienced artisan. Every structural seam on a StepAhead sneaker is reinforced by hand with double-bonded nylon threads, ensuring complete resistance to high wear and shear stress.",
+          "Finally, each sneaker is treated with a hand-applied organic finish that protects the leather against water droplets and daily dust while leaving its soft natural touch intact. When you unbox a StepAhead sneaker, you are holding the accumulation of dozens of hours of architectural planning, material selection, and deliberate hand craftsmanship."
         ]
       }
     ]
@@ -78,7 +78,7 @@ const DETAILED_BLOGS: Record<string, BlogPostDetails> = {
         sectionTitle: "2. The Luxury Shift to 'Quiet Premium'",
         paragraphs: [
           "This shift has redefined what it means to dress well. Modern collectors prioritize versatility and structural elegance. They look for sneakers and clothes that can transition seamlessly from formal designer galleries to casual street settings without missing a beat.",
-          "Our designs at dflex Store follow this precise philosophy. By choosing monochromatic tones, natural leathers, and strict borderless structures, we allow the premium quality of the craftsmanship to take center stage, making a powerful statement of quiet authority."
+          "Our designs at StepAhead Store follow this precise philosophy. By choosing monochromatic tones, natural leathers, and strict borderless structures, we allow the premium quality of the craftsmanship to take center stage, making a powerful statement of quiet authority."
         ]
       }
     ]
@@ -91,7 +91,7 @@ const DETAILED_BLOGS: Record<string, BlogPostDetails> = {
     author: "Supply Chain Desk",
     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop",
     readTime: "6 min read",
-    intro: "The fashion industry has long battled a sustainability crisis driven by rapid overproduction and cheap material sourcing. At dflex Store, we believe that luxury and ecological responsibility should not be mutually exclusive. We take you behind the scenes of our green supply chain, carbon-neutral shipping setups, and ethical factory partnerships.",
+    intro: "The fashion industry has long battled a sustainability crisis driven by rapid overproduction and cheap material sourcing. At StepAhead Store, we believe that luxury and ecological responsibility should not be mutually exclusive. We take you behind the scenes of our green supply chain, carbon-neutral shipping setups, and ethical factory partnerships.",
     content: [
       {
         sectionTitle: "1. Hyper-Limited Batch Releases",

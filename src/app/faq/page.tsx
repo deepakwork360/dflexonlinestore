@@ -39,7 +39,7 @@ const FAQ_DATA: FAQCategory[] = [
     icon: Ruler,
     items: [
       {
-        question: "How do dflex sneakers fit?",
+        question: "How do StepAhead sneakers fit?",
         answer: "Most of our standard silhouettes run true to size (TTS). However, for sneakers featuring extra-dense orthopedic ankle support structures, we recommend going half-size up if you prefer a looser daily fit. Complete sizing charts are listed on individual product sheets."
       },
       {
@@ -72,7 +72,7 @@ const FAQ_DATA: FAQCategory[] = [
       },
       {
         question: "Is my payment information safe?",
-        answer: "Absolutely. All transactions are routed through fully Level-1 PCI-DSS compliant Stripe servers with 256-bit AES encryption. dflex Store never stores your credit card number or billing credentials."
+        answer: "Absolutely. All transactions are routed through fully Level-1 PCI-DSS compliant Stripe servers with 256-bit AES encryption. StepAhead Store never stores your credit card number or billing credentials."
       }
     ]
   }

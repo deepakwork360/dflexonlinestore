@@ -884,7 +884,7 @@ export default async function GenderCollectionPage({ params }: Props) {
       {/* 4.5 Frequently Asked Questions (FAQ) Section */}
       <FAQAccordion />
 
-      {/* 5. The Dflex Premium Experience Section */}
+      {/* 5. The StepAhead Premium Experience Section */}
       <section className="w-full bg-neutral-50 dark:bg-neutral-900/40 border-t border-neutral-200/40 dark:border-neutral-800 py-12 mt-20">
         <div className="mx-auto max-w-[1600px] w-full px-4 sm:px-6 lg:px-12 xl:px-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-neutral-200 dark:divide-neutral-800 text-center">

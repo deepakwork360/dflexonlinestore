@@ -28,10 +28,10 @@ export default function AboutPage() {
             </span>
             <h1 className="text-4xl sm:text-5xl font-serif font-light tracking-wide text-neutral-950 uppercase leading-tight">
               The Genesis of <br />
-              <span className="font-bold tracking-widest text-[#B61C38]">dflex Store</span>
+              <span className="font-bold tracking-widest text-[#B61C38]">StepAhead Store</span>
             </h1>
             <p className="text-xs sm:text-sm text-neutral-550 leading-relaxed font-medium">
-              Born at the intersection of structural precision and high-fashion minimalism, Dflex Store represents a departure from disposable street culture. We believe sneakers should be architectural masterpieces—offering uncompromising footbed support while maintaining a clean, borderless editorial silhouette.
+              Born at the intersection of structural precision and high-fashion minimalism, StepAhead Store represents a departure from disposable street culture. We believe sneakers should be architectural masterpieces—offering uncompromising footbed support while maintaining a clean, borderless editorial silhouette.
             </p>
             <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
               Every curve, panel, and material is curated with an obsession for detail. We do not design for the masses; we craft for individuals who recognize that luxury is found in the unseen subtleties.
@@ -41,7 +41,7 @@ export default function AboutPage() {
           <div className="lg:col-span-7 relative aspect-[16/10] overflow-hidden bg-neutral-50 border border-neutral-100 shadow-sm">
             <Image
               src="https://i.pinimg.com/1200x/35/5b/60/355b600f9e2152307e3d93d86182f631.jpg"
-              alt="dflex Store Sneaker Showcase"
+              alt="StepAhead Store Sneaker Showcase"
               fill
               priority
               className="object-cover object-center select-none hover:scale-101 transition-transform duration-700"
@@ -114,7 +114,7 @@ export default function AboutPage() {
           <div className="lg:col-span-7 relative aspect-[16/10] overflow-hidden bg-neutral-50 border border-neutral-100 shadow-sm order-2 lg:order-1">
             <Image
               src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop"
-              alt="dflex Store Atelier Workshop"
+              alt="StepAhead Store Atelier Workshop"
               fill
               className="object-cover object-center select-none hover:scale-101 transition-transform duration-700"
             />
@@ -129,7 +129,7 @@ export default function AboutPage() {
               <span className="font-bold tracking-widest text-[#B61C38]">Made to Last</span>
             </h2>
             <p className="text-xs sm:text-sm text-neutral-550 leading-relaxed font-medium">
-              Every dflex Store collection is released in hyper-limited quantities. By eschewing overproduction, we avoid excess stock and direct our focus entirely to quality assurance. Each box contains an individualized inspection card hand-signed by our atelier team.
+              Every StepAhead Store collection is released in hyper-limited quantities. By eschewing overproduction, we avoid excess stock and direct our focus entirely to quality assurance. Each box contains an individualized inspection card hand-signed by our atelier team.
             </p>
             <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
               We design sneakers that command attention through silence. There are no oversized logos or loud, flashing colors—just structural perfection, refined materials, and an unparalleled aesthetic fit.
@@ -146,7 +146,7 @@ export default function AboutPage() {
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-light uppercase tracking-wider leading-none text-white">
               Experience the <br />
-              <span className="font-bold text-[#B61C38]">Dflex Difference</span>
+              <span className="font-bold text-[#B61C38]">StepAhead Difference</span>
             </h2>
             <p className="text-xs sm:text-sm text-neutral-400 font-medium leading-relaxed max-w-md mx-auto">
               Step into curated streetwear, structural support, and premium daily aesthetics. Explore our latest sneaker drops now.

@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto flex max-w-[1500px] flex-col gap-4 px-4 py-5 sm:px-6 xl:flex-row xl:items-center xl:justify-between xl:px-8">
           <div className="shrink-0">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-rose-600">
-              Dflex Commerce
+              StepAhead Commerce
             </p>
             <h1 className="mt-1 text-2xl font-black uppercase tracking-tight">
               Admin Panel

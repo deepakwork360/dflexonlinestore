@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-neutral-600 text-xs sm:text-sm leading-relaxed font-medium">
           
           <p className="text-neutral-950 font-serif italic text-sm sm:text-base border-l-2 border-[#B61C38] pl-4 py-0.5">
-            At dflex Store, we treat your personal information with the same level of care and precision that we apply to our sneaker craftsmanship. This Privacy Policy details how we collect, process, and safeguard your details.
+            At StepAhead Store, we treat your personal information with the same level of care and precision that we apply to our sneaker craftsmanship. This Privacy Policy details how we collect, process, and safeguard your details.
           </p>
 
           {/* Section 1 */}
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
               3. Stripe Gateway Security &amp; Encryption
             </h3>
             <p>
-              All billing credentials, card numbers, and cvc details are transmitted directly to Stripe via 256-bit Secure Sockets Layer (SSL) encryption protocol. dflex Store does not capture, store, or view your physical credit card credentials.
+              All billing credentials, card numbers, and cvc details are transmitted directly to Stripe via 256-bit Secure Sockets Layer (SSL) encryption protocol. StepAhead Store does not capture, store, or view your physical credit card credentials.
             </p>
           </div>
 

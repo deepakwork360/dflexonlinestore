@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 
 // High-fidelity social SVG icons
@@ -55,7 +56,7 @@ export default function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    toast.success("Welcome to Dflexonlinestore!", {
+    toast.success("Welcome to StepAhead Store!", {
       description: "You've successfully subscribed to our luxury sneaker newsletter.",
       position: "bottom-center",
     });
@@ -72,9 +73,18 @@ export default function Footer() {
           {/* Left Column: Branding, Socials, and Subscription */}
           <div className="md:col-span-6 space-y-7 flex flex-col items-start text-left">
             {/* DALAMO Brand Logo */}
-            <Link href="/" className="inline-block">
-              <span className="text-4xl sm:text-5xl font-serif font-light tracking-[0.25em] text-white uppercase transition-all duration-300">
-                dflex Store
+            <Link href="/" className="group flex items-center gap-4">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/images/skull9.png"
+                  alt="StepAhead Logo"
+                  fill
+                  sizes="80px"
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-lilita text-4xl sm:text-5xl md:text-6xl tracking-tighter text-white italic inline-block transform skew-x-[-8deg] transition-all duration-300 group-hover:scale-102">
+                StepAhead Store
               </span>
             </Link>
 
@@ -223,7 +233,7 @@ export default function Footer() {
 
         {/* Bottom Centered Copyright Bar */}
         <div className="mt-16 pt-8 border-t border-neutral-800/40 text-center text-[11px] font-medium tracking-widest text-neutral-550">
-          <span>&copy; 2025 Dflexonlinestore &bull; All Rights Reserved</span>
+          <span>&copy; 2025 StepAhead Store &bull; All Rights Reserved</span>
         </div>
 
       </div>

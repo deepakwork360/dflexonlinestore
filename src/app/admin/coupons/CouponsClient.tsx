@@ -119,7 +119,7 @@ export default function CouponsClient({
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 className="mt-1"
-                placeholder="DFLEX20"
+                placeholder="STEPAHEAD20"
               />
             </label>
 

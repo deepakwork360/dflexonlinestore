@@ -35,7 +35,7 @@ export default function TermsPage() {
         <div className="space-y-8 text-neutral-600 text-xs sm:text-sm leading-relaxed font-medium">
           
           <p className="text-neutral-950 font-serif italic text-sm sm:text-base border-l-2 border-[#B61C38] pl-4 py-0.5">
-            Welcome to dflex Store. These Terms and Conditions govern your access to and use of our online digital storefront, custom products, Stripe transaction services, and community editorials.
+            Welcome to StepAhead Store. These Terms and Conditions govern your access to and use of our online digital storefront, custom products, Stripe transaction services, and community editorials.
           </p>
 
           {/* Section 1 */}
@@ -54,7 +54,7 @@ export default function TermsPage() {
               2. Intellectual Property Rights
             </h3>
             <p>
-              All proprietary materials, visual layouts, typography, logos, customized shoebox packaging designs, graphics, and full-resolution product images displayed on this site are the exclusive property of dflex Store. Any unauthorized reproduction, modification, distribution, or public showcase for commercial purposes is strictly prohibited without prior written consent.
+              All proprietary materials, visual layouts, typography, logos, customized shoebox packaging designs, graphics, and full-resolution product images displayed on this site are the exclusive property of StepAhead Store. Any unauthorized reproduction, modification, distribution, or public showcase for commercial purposes is strictly prohibited without prior written consent.
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export default function TermsPage() {
               4. Custom Deliveries &amp; Shipping Liability
             </h3>
             <p>
-              dflex Store partners with DHL Express to fulfill global courier services. While we guarantee that all items are dispatched in pristine condition within our stated processing windows, we are not legally liable for external delays caused by local import customs clearances, bad weather, or natural logistics disruptions.
+              StepAhead Store partners with DHL Express to fulfill global courier services. While we guarantee that all items are dispatched in pristine condition within our stated processing windows, we are not legally liable for external delays caused by local import customs clearances, bad weather, or natural logistics disruptions.
             </p>
           </div>
 

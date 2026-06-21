@@ -165,9 +165,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           >
             {/* Header: Brand Name + Close Icon */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-900/50">
-              <Link href="/" onClick={onClose} className="group flex items-center">
-                <span className="text-xl font-black tracking-widest text-white uppercase transition-all duration-300 group-hover:tracking-[0.2em]">
-                  Dflex Store
+              <Link href="/" onClick={onClose} className="group flex items-center gap-2.5">
+                <div className="relative w-11 h-11 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                  <Image
+                    src="/images/skull9.png"
+                    alt="StepAhead Logo"
+                    fill
+                    sizes="44px"
+                    className="object-contain"
+                  />
+                </div>
+                <span className="font-lilita text-2xl sm:text-3xl tracking-tighter text-white italic inline-block transform skew-x-[-8deg] transition-all duration-300 group-hover:scale-102">
+                  StepAhead Store
                 </span>
               </Link>
               <button
@@ -383,7 +392,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </div>
               
               <div className="flex items-center justify-between text-[9px] text-neutral-600 uppercase tracking-widest font-extrabold">
-                <span>&copy; {new Date().getFullYear()} DFLEX SNEAKERS</span>
+                <span>&copy; {new Date().getFullYear()} STEPAHEAD SNEAKERS</span>
                 <span className="flex items-center gap-1">
                   <HelpCircle className="h-3.5 w-3.5 text-neutral-500" /> FAQ
                 </span>

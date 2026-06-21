@@ -40,7 +40,7 @@ const BLOGS_DATA: BlogPost[] = [
     category: "SUSTAINABILITY",
     date: "May 18, 2026",
     author: "Supply Chain Desk",
-    summary: "How dflex Store balances hyper-limited premium sneaker releases with carbon-neutral shipping operations and certified ethical manufacturing cycles.",
+    summary: "How StepAhead Store balances hyper-limited premium sneaker releases with carbon-neutral shipping operations and certified ethical manufacturing cycles.",
     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop",
     readTime: "6 min read"
   }
@@ -73,7 +73,7 @@ export default function BlogsPage() {
             OUR CHRONICLES
           </span>
           <h1 className="text-4xl sm:text-5xl font-serif font-light tracking-wide text-neutral-950 uppercase leading-none">
-            dflex <span className="font-bold tracking-widest text-[#B61C38]">Editorials</span>
+            StepAhead <span className="font-bold tracking-widest text-[#B61C38]">Editorials</span>
           </h1>
           <p className="text-xs sm:text-sm text-neutral-550 leading-relaxed font-medium">
             Discover design deep-dives, streetwear analysis, materials engineering showcases, and our atelier chronicles.
