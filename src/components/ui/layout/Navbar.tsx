@@ -77,8 +77,11 @@ export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
 
       {/* Brand Logo in the Center */}
       <div className="flex-shrink-0 flex items-center justify-center">
-        <Link href="/" className="group flex items-center gap-2.5">
-          <div className="relative w-11 h-11 md:w-13 md:h-13 shrink-0 transition-transform duration-300 group-hover:scale-105">
+        <Link href="/" className="group flex items-center gap-1.5 md:gap-2.5">
+          <span className="font-lilita text-xl sm:text-2xl md:text-3xl tracking-tighter text-neutral-950 dark:text-white italic inline-block transform skew-x-[-8deg] transition-all duration-300 group-hover:scale-102">
+            StepAhead Store
+          </span>
+          <div className="relative w-9 h-9 md:w-13 md:h-13 shrink-0 transition-transform duration-300 group-hover:scale-105">
             <Image
               src="/images/smile.jpeg"
               alt="StepAhead Logo"
@@ -88,14 +91,11 @@ export default function Navbar({ isMenuOpen, onToggleMenu }: NavbarProps) {
               priority
             />
           </div>
-          <span className="font-lilita text-2xl md:text-3xl tracking-tighter text-neutral-950 dark:text-white italic inline-block transform skew-x-[-8deg] transition-all duration-300 group-hover:scale-102">
-            StepAhead Store
-          </span>
         </Link>
       </div>
 
       {/* Right side: Utilities icons (Profile, Wishlist, Cart) */}
-      <div className="flex-1 flex items-center justify-end gap-3.5 md:gap-5">
+      <div className="flex-1 flex items-center justify-end gap-2.5 sm:gap-3.5 md:gap-5">
         {isAdmin && (
           <>
             {/* Desktop Admin/Store Toggle Link */}
